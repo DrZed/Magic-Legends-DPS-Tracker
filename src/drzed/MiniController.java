@@ -52,7 +52,9 @@ public class MiniController {
 
     public void update() {
         try {
-            MagicParser.ParseFile();
+            if (Configs.miniMode) {
+                MagicParser.ParseFile();
+            }
             Platform.runLater(() -> infoBox.setText(getDisplayText()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,6 +87,7 @@ public class MiniController {
     }
 
     public static String getDisplayText() {
+        if (MagicParser.getCurrentEncounter() == null) { return "Waiting for Encounter..."; }
         Entity me = MagicParser.getCurrentEncounter().getEntity(MagicParser.myID);
         if (me == null) { return "Waiting for Encounter..."; }
         String DPS = format((long) (me.damageDealt / me.getLifetime()));

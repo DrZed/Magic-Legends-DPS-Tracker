@@ -113,6 +113,7 @@ public class Controller {
     private static DataEntity fil;
     public void update() {
         try {
+//            System.out.println("updating");
             MagicParser.ParseFile();
             if (current == null && MagicParser.getCurrentEncounter() != null) {
                 current = MagicParser.getCurrentEncounter();
@@ -206,7 +207,13 @@ public class Controller {
 
     public void onFile(ActionEvent actionEvent) {
         FileChooser chooser = new FileChooser();
-        Main.Directory = chooser.showOpenDialog(Main.stage);
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("COMBATLOG files (Combatlog*.log)", "Combatlog*.log");
+        chooser.getExtensionFilters().add(extFilter);
+        chooser.setSelectedExtensionFilter(extFilter);
+        Main.Directory = chooser.showOpenDialog(Main.stage).getParentFile();
+        System.out.println(Main.Directory.getAbsolutePath().replaceAll("\\\\", "/"));
+        Configs.combatLogFolder = Main.Directory.getAbsolutePath().replaceAll("\\\\", "/");
+        Main.resaveConfig();
     }
 
     public void onTheme(ActionEvent actionEvent) {

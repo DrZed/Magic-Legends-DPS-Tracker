@@ -20,6 +20,9 @@ public class MagicParser {
     static void ParseFile() throws IOException {
         String line;
         checkFile();
+        if (in == null) {
+            return;
+        }
         if ((line = in.readLine()) != null) {
             polls = 0;
             inEncounter = true;
@@ -31,9 +34,27 @@ public class MagicParser {
     }
 
     private static void checkFile() throws FileNotFoundException {
+        if (Main.Directory == null || Main.Directory.getAbsolutePath().equalsIgnoreCase("E:\\Documents\\Dev\\MagicDPSParser")) {
+            System.out.println("Main Directory Null!");
+            retry = true;
+            return;
+        } else if (!Main.Directory.isDirectory()) {
+            System.out.println(Main.Directory.getName() + "    " + Main.Directory.getAbsolutePath());
+            System.out.println("Main Directory Non-Existant!");
+            retry = true;
+            return;
+        } else if (Main.Directory.listFiles().length == 0) {
+            System.out.println("Main Directory Empty!");
+            retry = true;
+            return;
+        }
+
         if (in == null) {
             currentFile = getFile();
-            if (currentFile == null) return;
+            if (currentFile == null) {
+                System.out.println("Cannot find Latest CombatLog!");
+                return;
+            }
             in = new RandomAccessFile(currentFile, "r");
         } else if (!currentFile.getName().equalsIgnoreCase(getFile().getName())) {
             System.out.println("Changing File.");
@@ -97,6 +118,7 @@ public class MagicParser {
         String magnitude = parts[10]; //Magnitude Dealt (after vulnerability calculation)
         String magnitudeBase = parts[11]; //Magnitude Base (before vulnerability calculation)
 
+//        System.out.println(line);
         if (selfName.equalsIgnoreCase(Configs.defaultFilter)) {
             myID = selfID;
         }

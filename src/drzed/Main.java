@@ -69,14 +69,21 @@ public class Main extends Application {
         config = new HxCConfig(Configs.class, "MagicLegendsParser", new File("./"), "cfg", "MLParse");
     }
 
+    public static void resaveConfig() {
+        if (new File("./MagicLegendsParser.cfg").exists()) {
+            new File("./MagicLegendsParser.cfg").delete();
+            config.initConfiguration();
+        }
+    }
+
     static HxCConfig dummy2 = new HxCConfig(SkillTypes.class, "ML_Skill_Data", new File("./"), "cfg", "MLParse");
     private static void initialize() {
+        config.initConfiguration();
         Directory = new File(Configs.combatLogFolder);
         File sk = new File("./ML_Skill_Data.cfg");
         if (sk.exists()) {
             dummy2.initConfiguration();
         }
-        config.initConfiguration();
     }
 
     public static void export(String name) {
