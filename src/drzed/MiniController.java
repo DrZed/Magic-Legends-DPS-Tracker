@@ -54,7 +54,7 @@ public class MiniController {
         try {
             MagicParser.ParseFile();
             Platform.runLater(() -> infoBox.setText(getDisplayText()));
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

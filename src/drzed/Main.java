@@ -75,7 +75,6 @@ public class Main extends Application {
         File sk = new File("./ML_Skill_Data.cfg");
         if (sk.exists()) {
             dummy2.initConfiguration();
-            sk.delete();
         }
         config.initConfiguration();
     }

@@ -122,7 +122,7 @@ public class Controller {
                 Platform.runLater(() -> pieChart.getData().clear());
             }
             if (current == null) return;
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

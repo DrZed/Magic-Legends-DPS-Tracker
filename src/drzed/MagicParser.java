@@ -1,6 +1,7 @@
 package drzed;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.time.*;
@@ -14,17 +15,11 @@ public class MagicParser {
     static RandomAccessFile in;
     static File currentFile;
     static String myID;
+    static boolean retry = false;
 
-    static void ParseFile() throws IOException, InterruptedException {
+    static void ParseFile() throws IOException {
         String line;
-        if (in == null) {
-            currentFile = getFile();
-            if (currentFile == null) return;
-            in = new RandomAccessFile(currentFile, "r");
-        } else if (!currentFile.getName().equalsIgnoreCase(getFile().getName())) {
-            currentFile = getFile();
-            in = new RandomAccessFile(currentFile, "r");
-        }
+        checkFile();
         if ((line = in.readLine()) != null) {
             polls = 0;
             inEncounter = true;
@@ -33,6 +28,38 @@ public class MagicParser {
             polls++;
         }
         if (polls >= (Configs.endEncounterTimer / Configs.guiPollRate) && inEncounter) endEncounter();
+    }
+
+    private static void checkFile() throws FileNotFoundException {
+        if (in == null) {
+            currentFile = getFile();
+            if (currentFile == null) return;
+            in = new RandomAccessFile(currentFile, "r");
+        } else if (!currentFile.getName().equalsIgnoreCase(getFile().getName())) {
+            System.out.println("Changing File.");
+            System.out.println("Old File :" + currentFile.getName());
+            currentFile = getFile();
+            try {
+                in = new RandomAccessFile(currentFile, "r");
+            } catch (FileNotFoundException e) {
+                retry = true;
+                System.out.println("Retrying");
+                return;
+            }
+            System.out.println("New File :" + currentFile.getName());
+        }
+        if (retry) {
+            try {
+                currentFile = getFile();
+                in = new RandomAccessFile(currentFile, "r");
+            } catch (FileNotFoundException e) {
+                retry = true;
+                System.out.println("Retrying again.");
+                return;
+            }
+            retry = false;
+            System.out.println("New File :" + currentFile.getName());
+        }
     }
 
     private static File getFile() {
