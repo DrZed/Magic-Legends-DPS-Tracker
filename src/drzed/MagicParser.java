@@ -12,29 +12,18 @@ public class MagicParser {
     private static int polls = 0;
     private static boolean inEncounter = false;
     static RandomAccessFile in;
-    /*static void ParseFile() throws IOException, InterruptedException {
-        String line;
-        if (in == null) {
-             in = new RandomAccessFile(getFile(), "r");
-        }
-//        while(true) {
-            if ((line = in.readLine()) != null) {
-//                System.out.println(line);
-                polls = 0;
-                inEncounter = true;
-                parseLine(line);
-            } else {
-//                Thread.sleep(combatLogPollRate);
-                polls++;
-            }
-            if (polls >= 4 && inEncounter) endEncounter();
-//        }
-    }*/
+    static File currentFile;
+    static String myID;
 
     static void ParseFile() throws IOException, InterruptedException {
         String line;
         if (in == null) {
-            in = new RandomAccessFile(getFile(), "r");
+            currentFile = getFile();
+            if (currentFile == null) return;
+            in = new RandomAccessFile(currentFile, "r");
+        } else if (!currentFile.getName().equalsIgnoreCase(getFile().getName())) {
+            currentFile = getFile();
+            in = new RandomAccessFile(currentFile, "r");
         }
         if ((line = in.readLine()) != null) {
             polls = 0;
@@ -67,10 +56,6 @@ public class MagicParser {
         ZonedDateTime zonedDateTime = ZonedDateTime.of(time, ZoneId.systemDefault());
         long t = zonedDateTime.toInstant().toEpochMilli();
         String[] parts = line.split("::")[1].split(",");
-//        System.out.println(parts.length); ALWAYS 12
-//        System.out.println(line.split("::")[0] + " -> " + time.toString());
-
-//        System.out.println(zonedDateTime.toInstant().toEpochMilli());
 
         String selfName = parts[0]; //Source of Event Name
         String selfID = parts[1]; //Source of Event ID
@@ -84,6 +69,10 @@ public class MagicParser {
         String flags = parts[9]; //Flag
         String magnitude = parts[10]; //Magnitude Dealt (after vulnerability calculation)
         String magnitudeBase = parts[11]; //Magnitude Base (before vulnerability calculation)
+
+        if (selfName.equalsIgnoreCase(Configs.defaultFilter)) {
+            myID = selfID;
+        }
 
         float mag = Float.parseFloat(magnitude);
         float baseMag = Float.parseFloat(magnitudeBase);

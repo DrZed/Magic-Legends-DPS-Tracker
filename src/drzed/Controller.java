@@ -7,12 +7,17 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -93,6 +98,11 @@ public class Controller {
             @Override public Void call() {
                 while (true) {
                     update();
+                    try {
+                        Thread.sleep(Configs.guiPollRate);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -100,10 +110,8 @@ public class Controller {
     }
 
     private static Encounter current;
-    private static long tmin = 0;
     private static DataEntity fil;
     public void update() {
-        if (System.currentTimeMillis() - tmin < Configs.guiPollRate) return;
         try {
             MagicParser.ParseFile();
             if (current == null && MagicParser.getCurrentEncounter() != null) {
@@ -146,7 +154,6 @@ public class Controller {
             statsTbl.getItems().removeAll();
             if (fil != null) {
                 table.getSelectionModel().select(fil);
-//                System.out.println(table.getSelectionModel().getSelectedIndex());
             }
             if (table.getSelectionModel().getSelectedIndex() != -1) {
                 Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().entityID);
@@ -165,18 +172,12 @@ public class Controller {
                 if (dataAbilities.size() > 0) {
                     for (DataAbility dataAbility : dataAbilities) {
                         Platform.runLater(() -> addData(dataAbility.abilityName, dataAbility.abilityDamage));
-//                        if (pieChart.getData().isEmpty()) {
-//                            pieChart.setData(pieChartData);
-//                        }
                     }
                 } else {
-//                    pieChartData.clear();
                     Platform.runLater(() -> pieChart.getData().clear());
                 }
             }
         }
-
-        tmin = System.currentTimeMillis();
     }
 
     //adds new Data to the list
@@ -216,7 +217,6 @@ public class Controller {
 
     }
 
-
     public void quit(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
@@ -236,5 +236,22 @@ public class Controller {
     public void mousePress(MouseEvent mouseEvent) {
         xOffset = Main.stage.getX() - mouseEvent.getScreenX();
         yOffset = Main.stage.getY() - mouseEvent.getScreenY();
+    }
+
+    public void openMini(ActionEvent actionEvent) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("ML_ParseMini.fxml"));
+            Stage secondStage = new Stage();
+            secondStage.setTitle("Magic Legends Mini Parser");
+            secondStage.setScene(new Scene(root, Configs.miniDisplayWidth, 35));
+            secondStage.initStyle(StageStyle.TRANSPARENT);
+            secondStage.setAlwaysOnTop(true);
+            secondStage.setX(0);
+            secondStage.setY(0);
+            Main.miniStage = secondStage;
+            secondStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

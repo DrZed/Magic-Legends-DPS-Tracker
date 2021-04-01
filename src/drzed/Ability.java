@@ -1,5 +1,7 @@
 package drzed;
 
+import java.util.Comparator;
+
 public class Ability {
     public String name;
     public String ID;
@@ -22,5 +24,9 @@ public class Ability {
     public void updateDamage(double dm) {
         Damage += dm;
         hits++;
+    }
+
+    public double getDamage() {
+        return Damage;
     }
 }

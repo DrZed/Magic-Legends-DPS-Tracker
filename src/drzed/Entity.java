@@ -1,8 +1,6 @@
 package drzed;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Entity {
@@ -68,5 +66,15 @@ public class Entity {
 
     public void kill(long last) {
         deathTime = last;
+    }
+
+    public Ability getBestAbility() {
+        LinkedList<Ability> abs = new LinkedList<>(abilities.values());
+        abs.sort(Comparator.comparingDouble(Ability::getDamage));
+        return abs.getLast();
+    }
+
+    public double getLifetime() {
+        return (lastSeen - firstSeen) / 1000D;
     }
 }

@@ -15,17 +15,27 @@ import java.io.File;
 import java.io.IOException;
 
 public class Main extends Application {
-    static Stage stage = null;
+    public static Stage stage = null;
+    public static Stage miniStage = null;
     static File Directory;
     private static HxCConfig config;
     public static Main instance;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("ML_ParserGUI.fxml"));
-        primaryStage.setTitle("Magic Legends Combat Parser");
-        primaryStage.setScene(new Scene(root, 1280, 720));
-        primaryStage.initStyle(StageStyle.UNDECORATED);
+        if (Configs.miniMode) {
+            Parent root = FXMLLoader.load(getClass().getResource("ML_ParseMini.fxml"));
+            primaryStage.setTitle("Magic Legends Mini Parser");
+            primaryStage.setScene(new Scene(root, Configs.miniDisplayWidth, 35));
+            primaryStage.initStyle(StageStyle.TRANSPARENT);
+            primaryStage.setAlwaysOnTop(true);
+            miniStage = primaryStage;
+        } else {
+            Parent root = FXMLLoader.load(getClass().getResource("ML_ParserGUI.fxml"));
+            primaryStage.setTitle("Magic Legends Combat Parser");
+            primaryStage.setScene(new Scene(root, 1280, 720));
+            primaryStage.initStyle(StageStyle.UNDECORATED);
+        }
         stage = primaryStage;
         primaryStage.show();
     }

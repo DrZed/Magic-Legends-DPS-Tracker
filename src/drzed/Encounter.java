@@ -70,6 +70,6 @@ public class Encounter {
     }
 
     public Entity getEntity(String id) {
-        return entities.get(id);
+        return entities.getOrDefault(id, null);
     }
 }
