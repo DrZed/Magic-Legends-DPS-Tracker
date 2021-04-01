@@ -235,12 +235,12 @@ public class Controller {
     }
 
     double xOffset, yOffset;
-    public void onMouseDrag(MouseEvent mouseEvent) {
+    public void onDrag(MouseEvent mouseEvent) {
         Main.stage.setX(mouseEvent.getScreenX() + xOffset);
         Main.stage.setY(mouseEvent.getScreenY() + yOffset);
     }
 
-    public void mousePress(MouseEvent mouseEvent) {
+    public void onPress(MouseEvent mouseEvent) {
         xOffset = Main.stage.getX() - mouseEvent.getScreenX();
         yOffset = Main.stage.getY() - mouseEvent.getScreenY();
     }

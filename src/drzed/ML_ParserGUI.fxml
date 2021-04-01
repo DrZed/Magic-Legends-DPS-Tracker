@@ -12,8 +12,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.Controller">
+<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.Controller">
    <children>
       <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
@@ -36,7 +35,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <LineChart fx:id="lineChart" layoutY="383.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="644.0" AnchorPane.topAnchor="396.0">
+      <LineChart fx:id="lineChart" layoutY="383.0" onMouseDragged="#onDrag" onMousePressed="#onPress" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="644.0" AnchorPane.topAnchor="396.0">
         <xAxis>
           <CategoryAxis side="BOTTOM" />
         </xAxis>
@@ -44,9 +43,9 @@
           <NumberAxis side="LEFT" />
         </yAxis>
       </LineChart>
-      <PieChart fx:id="pieChart" layoutX="989.0" layoutY="406.0" prefHeight="286.0" prefWidth="542.0" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="26.0" />
+      <PieChart fx:id="pieChart" layoutX="989.0" layoutY="406.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="286.0" prefWidth="542.0" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="26.0" />
       <Button fx:id="quitBtn" mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="1228.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      <TableView fx:id="table" layoutY="27.0" prefHeight="355.0" prefWidth="700.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="580.0" AnchorPane.topAnchor="27.0">
+      <TableView fx:id="table" layoutY="27.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="355.0" prefWidth="700.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="580.0" AnchorPane.topAnchor="27.0">
         <columns>
           <TableColumn fx:id="nameCol" prefWidth="114.0" text="Name" />
           <TableColumn fx:id="damageCol" prefWidth="105.0" text="Damage" />
@@ -59,7 +58,7 @@
             <TableColumn fx:id="deathCol" prefWidth="46.0" text="Deaths" />
         </columns>
       </TableView>
-      <TableView fx:id="statsTbl" layoutX="695.0" layoutY="27.0" prefHeight="355.0" prefWidth="560.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="720.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+      <TableView fx:id="statsTbl" layoutX="695.0" layoutY="27.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="355.0" prefWidth="560.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="720.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
         <columns>
           <TableColumn fx:id="abilityCol" prefWidth="215.0" text="Ability" />
           <TableColumn fx:id="basedmgCol" prefWidth="100.0" text="Base DMG" />
