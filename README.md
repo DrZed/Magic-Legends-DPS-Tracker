@@ -11,3 +11,6 @@
 3. use command `/combatlog 1` ingame to enable logging combat to logs folder
 4. launch program after first hit of something to load latest file
 5. Enjoy the live tracking
+
+* https://www.patreon.com/DrZed
+* https://paypal.me/DrZed
