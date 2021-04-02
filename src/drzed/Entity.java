@@ -1,5 +1,6 @@
 package drzed;
 
+import java.net.IDN;
 import java.util.*;
 
 @SuppressWarnings({"WeakerAccess","unused"})
@@ -15,17 +16,22 @@ public class Entity {
     public long firstSeen;
     public long deathTime;
     public long lastSeen;
+    public long deaths;
+    public String internalName;
+    public long IDNum;
     public List<String> petIds;
 
     public Entity() {}
 
-    public Entity(String EntityName, String IdentityNumber, long first) {
+    public Entity(String EntityName, String Identifier, long first) {
         name = EntityName;
-        ID = IdentityNumber;
+        ID = Identifier;
         firstSeen = first;
         abilities = new HashMap<>();
         petIds = new ArrayList<>();
         healingSources = new HashMap<>();
+        internalName = getID(Identifier);
+        IDNum = getIDNumber(Identifier);
         hits = 0;
     }
 
@@ -45,7 +51,9 @@ public class Entity {
     }
 
     public void healEntity(String abilityID, double healing, double base) {
-        healing *= -1;
+        if (healing < 0) {
+            healing *= -1;
+        }
         if (!healingSources.containsKey(abilityID)) {
             healingSources.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
         }
@@ -66,6 +74,7 @@ public class Entity {
 
     public void kill(long last) {
         deathTime = last;
+        deaths++;
     }
 
     public Ability getBestAbility() {
@@ -76,5 +85,17 @@ public class Entity {
 
     public double getLifetime() {
         return (lastSeen - firstSeen) / 1000D;
+    }
+
+    //C[310876 Zen_Vastwood_Forest_Hordeling_Goblin_Ranged]
+    public static String getID(Entity ent) {
+        return ent.ID.replaceAll("C\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
+    }
+    public static String getID(String id) {
+        if (id.equalsIgnoreCase("*") || id.isEmpty()) return "";
+        return id.replaceAll("C\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
+    }
+    public static long getIDNumber(String id) {
+        return Long.parseLong(id.replaceAll("\\w\\[", "").replaceAll("\\]", "").replaceAll("@", "1234").trim().split(" ")[0]);
     }
 }

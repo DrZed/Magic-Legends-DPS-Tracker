@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
@@ -20,6 +19,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @SuppressWarnings("all")
 public class Controller {
@@ -74,6 +76,7 @@ public class Controller {
     public Button quitBtn;
 
     public static ObservableList<DataEntity> dataEntities = FXCollections.observableArrayList();
+    public static List<Entity> dataEntitiesAdded = new ArrayList<>();
     public static ObservableList<DataAbility> dataAbilities = FXCollections.observableArrayList();
     private static ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
@@ -90,6 +93,10 @@ public class Controller {
         pieChart.setLabelsVisible(false);
         pieChart.setStartAngle(180);
         pieChart.setClockwise(true);
+
+        dataEntities = FXCollections.observableArrayList();
+        dataEntitiesAdded = new ArrayList<>();
+        dataAbilities = FXCollections.observableArrayList();
     }
 
     @FXML
@@ -113,70 +120,92 @@ public class Controller {
     private static DataEntity fil;
     public void update() {
         try {
-//            System.out.println("updating");
             MagicParser.ParseFile();
             if (current == null && MagicParser.getCurrentEncounter() != null) {
                 current = MagicParser.getCurrentEncounter();
                 Platform.runLater(() -> pieChart.getData().clear());
+                dataEntities = FXCollections.observableArrayList();
+                dataEntitiesAdded = new ArrayList<>();
+                dataAbilities = FXCollections.observableArrayList();
+                table.getItems().removeAll();
             } else if (current != null && MagicParser.getCurrentEncounter() != null && current != MagicParser.getCurrentEncounter()) {
                 current = MagicParser.getCurrentEncounter();
                 Platform.runLater(() -> pieChart.getData().clear());
+                dataEntities = FXCollections.observableArrayList();
+                dataEntitiesAdded = new ArrayList<>();
+                dataAbilities = FXCollections.observableArrayList();
+                table.getItems().removeAll();
             }
             if (current == null) return;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (dataEntities.size() != current.entities.size()) {
-            dataEntities = FXCollections.observableArrayList();
-            dataAbilities = FXCollections.observableArrayList();
-            for (Entity value : current.entities.values()) {
-                DataEntity de = new DataEntity(value);
+        updateDataEntities();
+        if (dataEntities.size() > 0 && dataEntitiesAdded.size() > 0) {
+            updateTable();
+            updateAbilityData();
+        }
+    }
+
+    private void updateTable() {
+//        System.out.println("table updating");
+//        System.out.println(dataEntities.size() + "  |  " + dataEntitiesAdded.size());
+//        table.getItems().removeAll();
+
+        nameCol.setCellValueFactory(cellData -> cellData.getValue().getEntityName());
+        damageCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDamage());
+        dpsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDPS());
+        healCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHealing());
+        hpscol.setCellValueFactory(cellData -> cellData.getValue().getEntityHPS());
+        takenCol.setCellValueFactory(cellData -> cellData.getValue().getEntityTaken());
+        deathCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDeaths());
+        durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
+        hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
+
+        table.setItems(dataEntities);
+        table.refresh();
+    }
+
+    private void updateDataEntities() {
+        for (Entity value : current.getEnts().values()) {
+            DataEntity de = new DataEntity(value);
+            if (!dataEntitiesAdded.contains(value)) {
+                dataEntities.add(de);
+                dataEntitiesAdded.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
                     fil = de;
+                    if (fil != null) {
+                        table.getSelectionModel().select(fil);
+                    }
                 }
-                dataEntities.add(de);
+            }
+        }
+    }
+
+    private void updateAbilityData() {
+        dataAbilities = FXCollections.observableArrayList();
+        statsTbl.getItems().removeAll();
+        if (table.getSelectionModel().getSelectedIndex() != -1) {
+            Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
+            if (ent.abilities.size() > 0) {
+                for (Ability value : ent.abilities.values()) {
+                    dataAbilities.add(new DataAbility(value));
+                }
+                abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
+                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
+                damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
+                dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
+                hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
+                Platform.runLater(() -> statsTbl.setItems(dataAbilities));
             }
 
-            table.getItems().removeAll();
-
-            nameCol.setCellValueFactory(cellData -> cellData.getValue().getEntityName());
-            damageCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDamage());
-            dpsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDPS());
-            healCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHealing());
-            hpscol.setCellValueFactory(cellData -> cellData.getValue().getEntityHPS());
-            takenCol.setCellValueFactory(cellData -> cellData.getValue().getEntityTaken());
-            deathCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDeaths());
-            durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
-            hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
-
-            table.setItems(dataEntities);
-
-            statsTbl.getItems().removeAll();
-            if (fil != null) {
-                table.getSelectionModel().select(fil);
-            }
-            if (table.getSelectionModel().getSelectedIndex() != -1) {
-                Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().entityID);
-                if (ent.abilities.size() > 0) {
-                    for (Ability value : ent.abilities.values()) {
-                        dataAbilities.add(new DataAbility(value));
-                    }
-                    abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
-                    basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
-                    damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
-                    dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
-                    hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
-                    statsTbl.setItems(dataAbilities);
+            if (dataAbilities.size() > 0) {
+                for (DataAbility dataAbility : dataAbilities) {
+                    Platform.runLater(() -> addData(dataAbility.abilityName, dataAbility.abilityDamage));
                 }
-
-                if (dataAbilities.size() > 0) {
-                    for (DataAbility dataAbility : dataAbilities) {
-                        Platform.runLater(() -> addData(dataAbility.abilityName, dataAbility.abilityDamage));
-                    }
-                } else {
-                    Platform.runLater(() -> pieChart.getData().clear());
-                }
+            } else {
+                Platform.runLater(() -> pieChart.getData().clear());
             }
         }
     }

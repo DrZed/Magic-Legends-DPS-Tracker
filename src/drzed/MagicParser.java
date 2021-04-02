@@ -118,14 +118,13 @@ public class MagicParser {
         String magnitude = parts[10]; //Magnitude Dealt (after vulnerability calculation)
         String magnitudeBase = parts[11]; //Magnitude Base (before vulnerability calculation)
 
-//        System.out.println(line);
+
         if (selfName.equalsIgnoreCase(Configs.defaultFilter)) {
             myID = selfID;
         }
 
         float mag = Float.parseFloat(magnitude);
         float baseMag = Float.parseFloat(magnitudeBase);
-
         if (currentEncounter == null) {
             currentEncounter = new Encounter(t);
         } else if (lastEncUpT != 0 && t - lastEncUpT > Configs.endEncounterTimer) {
@@ -133,7 +132,11 @@ public class MagicParser {
             currentEncounter = new Encounter(t);
         }
 
+        EntityNames.addEntityName(targetName, targetID);
+        EntityNames.addEntityName(selfName, selfID);
+        EntityNames.addEntityName(sourceName, sourceID);
         currentEncounter.updateEntity(selfName, selfID, sourceName, sourceID, targetName, targetID, t, eventName, eventID, flags, mag, baseMag);
+//        System.out.print(".");
         if (!flags.trim().isEmpty()) {
 //            System.out.println(flags);
         }

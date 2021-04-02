@@ -77,12 +77,17 @@ public class Main extends Application {
     }
 
     static HxCConfig dummy2 = new HxCConfig(SkillTypes.class, "ML_Skill_Data", new File("./"), "cfg", "MLParse");
+    static HxCConfig dummy3 = new HxCConfig(EntityNames.class, "ML_Entity_Data", new File("./"), "cfg", "MLParse");
     private static void initialize() {
         config.initConfiguration();
         Directory = new File(Configs.combatLogFolder);
         File sk = new File("./ML_Skill_Data.cfg");
         if (sk.exists()) {
             dummy2.initConfiguration();
+        }
+        sk = new File("./ML_Entity_Data.cfg");
+        if (sk.exists()) {
+            dummy3.initConfiguration();
         }
     }
 
@@ -94,5 +99,10 @@ public class Main extends Application {
             sk.delete();
         }
         dummy2.initConfiguration();
+        sk = new File("./ML_Entity_Data.cfg");
+        if (sk.exists()) {
+            sk.delete();
+        }
+        dummy3.initConfiguration();
     }
 }

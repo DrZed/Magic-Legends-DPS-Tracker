@@ -6,18 +6,22 @@ import java.util.LinkedHashMap;
 public class Encounter {
     public long time = 0;
     public long duration = 0;
-    public LinkedHashMap<String, Entity> entities;
+    public LinkedHashMap<String, Entity> allEntities;
+    public LinkedHashMap<String, Long> entityDeaths;
+    public LinkedHashMap<String, Entity> noDupedEntities;
 
     public Encounter() {}
 
     public Encounter(long StartTime) {
         time = StartTime;
-        entities = new LinkedHashMap<>();
+        allEntities = new LinkedHashMap<>();
+        entityDeaths = new LinkedHashMap<>();
+        noDupedEntities = new LinkedHashMap<>();
     }
 
     public void end(long endTime) {
         duration = time - endTime;
-        entities.forEach((a,b) -> {
+        allEntities.forEach((a, b) -> {
             b.kill(endTime);
         });
     }
@@ -25,7 +29,6 @@ public class Encounter {
     public void updateEntity(String selfName, String selfID, String ownerName, String ownerID, String targetName, String targetID, long t, String abilityName, String abilityID, String flag, double magnitude, double baseMagnitude) {
         if (selfName.trim().isEmpty()) return;
         String tp = SkillTypes.getType(abilityName, abilityID, magnitude);
-
         if (tp.equals("DMG")) {
             addDamageToEntity(targetName, targetID, t, selfName, selfID, magnitude);
             updateAbility(selfName, selfID, t, abilityID, magnitude, baseMagnitude);
@@ -42,34 +45,81 @@ public class Encounter {
     }
 
     private void updateAbility(String name, String id, long t, String abilityID, double damage, double baseMag) {
-        getOrAddEntity(name, id, t).updateAbility(abilityID, damage, baseMag);
+        Entity e = getOrAddEntity(name, id, t);
+        if (e == null) return;
+        e.updateAbility(abilityID, damage, baseMag);
     }
 
-    private void addPetToEntity(String ownerName, String ownerID, long t, String petName, String petID) {
-        if (ownerID.trim().equalsIgnoreCase("*") || ownerID.trim().isEmpty()) return;
-        getOrAddEntity(ownerName, ownerID, t).addPetID(getOrAddEntity(petName, petID, t).ID);
+    private void addPetToEntity(String petName, String petID, long t, String ownerName, String ownerID) {
+        if (petID.trim().equalsIgnoreCase("*") || petID.trim().isEmpty()) return;
+        Entity e = getOrAddEntity(ownerName, ownerID, t);
+        Entity e2 = getOrAddEntity(petName, petID, t);
+        if (e == null || e2 == null) return;
+        e.addPetID(e2.ID);
     }
 
     private void addDamageToEntity(String targetName, String targetID, long t, String sourceName, String sourceID, double damage) {
-        getOrAddEntity(targetName, targetID, t).updateDamageTaken(damage);
+        Entity e = getOrAddEntity(targetName, targetID, t);
+        if (e == null) return;
+        e.updateDamageTaken(damage);
     }
 
     private void addHealingToEntity(String targetName, String targetID, long t, String abilityName, String abilityID, double heal, double baseMag) {
-        getOrAddEntity(targetName, targetID, t).healEntity(abilityID, heal, baseMag);
+        Entity e = getOrAddEntity(targetName, targetID, t);
+        if (e == null) return;
+        e.healEntity(abilityID, heal, baseMag);
     }
 
     private void killEntity(String targetName, String targetID, long t) {
-        getOrAddEntity(targetName, targetID, t).kill(t);
+        Entity e = getOrAddEntity(targetName, targetID, t);
+        if (e == null) return;
+        e.kill(t);
+        String enid = Entity.getID(targetID);
+        entityDeaths.replace(enid, entityDeaths.get(enid) + 1);
     }
 
     private Entity getOrAddEntity(String nm, String id, long t) {
-        if (!entities.containsKey(id))
-            entities.put(id, new Entity(nm, id, t));
-        entities.get(id).updateSeen(t);
-        return entities.get(id);
+        String enid = Entity.getID(id);
+        if (Configs.bannedEntityIDs.contains(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_") ||
+                enid.isEmpty()) {
+//            System.out.println("Returning null on entity name: " + nm + " ID " + id);
+            return null;
+        }
+        if (!entityDeaths.containsKey(enid)) {
+            entityDeaths.put(enid, 0L);
+        }
+        return Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
+    }
+
+
+    private Entity getOrAddEntityDupe(String nm, String id, long t) {
+        if (!allEntities.containsKey(id))
+            allEntities.put(id, new Entity(nm, id, t));
+        allEntities.get(id).updateSeen(t);
+        return allEntities.get(id);
+    }
+
+    private Entity getOrAddEntityNoDupe(String nm, String id, long t) {
+        String realID = Entity.getID(id);
+        if (!noDupedEntities.containsKey(realID))
+            noDupedEntities.put(realID, new Entity(nm, id, t));
+        noDupedEntities.get(realID).updateSeen(t);
+        return noDupedEntities.get(realID);
+    }
+
+    public LinkedHashMap<String, Entity> getEnts() {
+        return Configs.condensedMode ? noDupedEntities : allEntities;
+    }
+
+    public LinkedHashMap<String, Long> getEntityDeaths() {
+        return entityDeaths;
+    }
+
+    public long getDeaths(String id) {
+        return entityDeaths.get(id);
     }
 
     public Entity getEntity(String id) {
-        return entities.getOrDefault(id, null);
+        return getEnts().get(Configs.condensedMode ? Entity.getID(id) : id);
     }
 }
