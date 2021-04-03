@@ -163,6 +163,24 @@ public class Controller {
         durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
         hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
 
+        table.setRowFactory(tv -> new TableRow<DataEntity>() {
+            @Override
+            protected void updateItem(DataEntity item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && item.ent != null && item.ent.ownerEntity != null) {
+                    Entity owner = item.ent.ownerEntity;
+                    if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
+                        setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.selfColor)));
+                    } else if (table.getSelectionModel().getSelectedIndex() != -1) {
+                        Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
+                        if (owner.name.equalsIgnoreCase(ent.name)) {
+                            setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPetColor)));
+                        }
+                    }
+                }
+            }
+        });
+
         table.setItems(dataEntities);
         table.refresh();
     }

@@ -20,6 +20,7 @@ public class Entity {
     public String internalName;
     public long IDNum;
     public List<String> petIds;
+    public Entity ownerEntity;
 
     public Entity() {}
 
@@ -87,14 +88,23 @@ public class Entity {
         return (lastSeen - firstSeen) / 1000D;
     }
 
-    //C[310876 Zen_Vastwood_Forest_Hordeling_Goblin_Ranged]
     public static String getID(Entity ent) {
-        return ent.ID.replaceAll("C\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
+        return getID(ent.ID);
     }
+
+    //C[310876 Zen_Vastwood_Forest_Hordeling_Goblin_Ranged] //Creature ID
+    //P[440730@31580857 Keldon Warlord@KeldonSlayer#31282] //Epic Account great for testing id permutations
+    //P[31719@618666 Keldon@DeathDemon18] //Arc Alt great for testing id permutations
     public static String getID(String id) {
         if (id.equalsIgnoreCase("*") || id.isEmpty()) return "";
-        return id.replaceAll("C\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
+        if (id.contains("@")) {
+            String[] tmp = id.replaceAll("\\w\\[", "").replaceAll("\\]", "").trim().split("@");
+            return tmp[tmp.length - 1];
+        }
+        return id.replaceAll("\\w\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
     }
+
+    //Replaces @ with 1234 because @ isn't a number
     public static long getIDNumber(String id) {
         return Long.parseLong(id.replaceAll("\\w\\[", "").replaceAll("\\]", "").replaceAll("@", "1234").trim().split(" ")[0]);
     }
