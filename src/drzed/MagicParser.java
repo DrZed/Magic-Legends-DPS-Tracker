@@ -1,5 +1,9 @@
 package drzed;
 
+import drzed.Data.Encounter;
+import drzed.Data.subtype.EncounterData;
+import drzed.Data.subtype.EntityNames;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,9 +23,9 @@ public class MagicParser {
     private static boolean retry = false;
     private static Encounter currentEncounter;
     private static long lastEncUpT = 0;
-    static String myID;
+    public static String myID;
 
-    static void ParseFile() throws IOException {
+    public static void ParseFile() throws IOException {
         String line;
         if (tryAndSetNewFile()) {
             if ((line = in.readLine()) != null) {
@@ -110,10 +114,11 @@ public class MagicParser {
         EntityNames.addEntityName(targetName, targetID);
         EntityNames.addEntityName(ownerName, ownerID);
         EntityNames.addEntityName(petName, petID);
+
         currentEncounter.updateEntity(ownerName, ownerID, petName, petID, targetName, targetID, t, eventName, eventID, flags, mag, baseMag);
-//        System.out.print(".");
+
         if (!flags.trim().isEmpty() && !knownFlags.contains(flags)) {
-            System.out.println(flags);
+//            System.out.println(flags);
         }
 
         lastEncUpT = t;

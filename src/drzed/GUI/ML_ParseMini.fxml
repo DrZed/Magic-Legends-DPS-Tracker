@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<AnchorPane maxHeight="35.0" maxWidth="600.0" minHeight="35.0" minWidth="600.0" onMouseDragged="#mDrag" onMousePressed="#mPress" prefHeight="35.0" prefWidth="600.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.MiniController">
+<AnchorPane maxHeight="35.0" maxWidth="600.0" minHeight="35.0" minWidth="600.0" onMouseDragged="#mDrag" onMousePressed="#mPress" prefHeight="35.0" prefWidth="600.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.MiniController">
    <children>
       <TextField fx:id="infoBox" editable="false" layoutX="5.0" layoutY="5.0" maxHeight="25.0" maxWidth="565.0" minHeight="25.0" minWidth="565.0" onMouseDragged="#mDrag" onMousePressed="#mPress" prefHeight="25.0" prefWidth="565.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="5.0">
          <font>

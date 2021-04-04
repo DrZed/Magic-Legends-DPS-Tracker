@@ -1,6 +1,7 @@
-package drzed;
+package drzed.Data;
 
-import java.net.IDN;
+import drzed.Data.subtype.SkillTypes;
+
 import java.util.*;
 
 @SuppressWarnings({"WeakerAccess","unused"})
@@ -14,14 +15,18 @@ public class Entity {
     public double damageTaken;
     public double damageDealt;
     public long firstSeen;
-    public long deathTime;
     public long lastSeen;
+    public long deathTime;
     public long deaths;
     public String internalName;
     public long IDNum;
     public List<String> petIds;
-    public Entity ownerEntity;
+    public String ownerEntity;
     public boolean isPlayer;
+    public LinkedList<Integer> dpsOT;
+    public long DOTT;
+    public long lDOTT;
+    public double DOT;
 
     public Entity() {}
 
@@ -36,26 +41,19 @@ public class Entity {
         abilities = new HashMap<>();
         petIds = new ArrayList<>();
         healingSources = new HashMap<>();
+        dpsOT = new LinkedList<>();
         internalName = getID(Identifier);
         IDNum = getIDNumber(Identifier);
-        hits = 0;
+        lDOTT = first;
     }
 
     public void updateSeen(long t) {
         lastSeen = t;
+        DOTT = t;
     }
-//Pn.Amuy251=[ name=Mindlash ]
-//Pn.E19zs41=[ name=Mindlash ]
-//Pn.B6i4z31=[ name=Mindlash ]
-//Pn.67gyc51=[ name=Mindlash ]
-//Pn.5b8h1s=[ name=power that gives a bonus when you drop below a pct of mana ]
+
     public void updateAbility(String abilityID, double damage, double base) {
-        if (abilityID.equalsIgnoreCase("Pn.Amuy251") ||
-                abilityID.equalsIgnoreCase("Pn.E19zs41") ||
-                abilityID.equalsIgnoreCase("Pn.B6i4z31") ||
-                abilityID.equalsIgnoreCase("Pn.67gyc51")) { //Because go fk yourself multiple ids
-            abilityID = "Pn.Amuy251";
-        }
+        abilityID = fixMindlash(abilityID);
         if (!abilities.containsKey(abilityID)) {
             abilities.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
         }
@@ -64,6 +62,31 @@ public class Entity {
 
         hits++;
         damageDealt += damage;
+        DOT += damage;
+        if (DOTT - lDOTT > 30000) {
+            updateDOT();
+        }
+    }
+
+//Pn.Amuy251=[ name=Mindlash ]
+//Pn.E19zs41=[ name=Mindlash ]
+//Pn.B6i4z31=[ name=Mindlash ]
+//Pn.67gyc51=[ name=Mindlash ]
+    private String fixMindlash(String abilityID) {
+        if (abilityID.equalsIgnoreCase("Pn.Amuy251") ||
+                abilityID.equalsIgnoreCase("Pn.E19zs41") ||
+                abilityID.equalsIgnoreCase("Pn.B6i4z31") ||
+                abilityID.equalsIgnoreCase("Pn.67gyc51")) { //Because go fk yourself multiple ids
+            return "Pn.Amuy251";
+        }
+        return abilityID;
+    }
+
+    private void updateDOT() {
+        long dt = DOTT - lDOTT;
+        dpsOT.add(Math.toIntExact(Math.round((DOT / dt) * 1000D)));
+        lDOTT = DOTT;
+        DOT = 0;
     }
 
     public void healEntity(String abilityID, double healing, double base) {
@@ -107,20 +130,32 @@ public class Entity {
         return getID(ent.ID);
     }
 
+    public double getDPS() {
+        return damageDealt / getLifetime();
+    }
+    public double getHPS() {
+        return healingTaken / getLifetime();
+    }
+
     //C[310876 Zen_Vastwood_Forest_Hordeling_Goblin_Ranged] //Creature ID
     //P[440730@31580857 Keldon Warlord@KeldonSlayer#31282] //Epic Account great for testing id permutations
     //P[31719@618666 Keldon@DeathDemon18] //Arc Alt great for testing id permutations
     public static String getID(String id) {
         if (id.equalsIgnoreCase("*") || id.isEmpty()) return "";
+        String trim = id.replaceAll("\\w\\[|]", "").trim();
         if (id.contains("@")) {
-            String[] tmp = id.replaceAll("\\w\\[", "").replaceAll("\\]", "").trim().split("@");
+            String[] tmp = trim.split("@");
             return tmp[tmp.length - 1];
         }
-        return id.replaceAll("\\w\\[", "").replaceAll("\\]", "").trim().split(" ")[1];
+        String eid = trim.split(" ")[1];
+        if (eid.equalsIgnoreCase("Regionmechanic_Tolaria_Bubble_Controller") ||
+            eid.equalsIgnoreCase("Regionmechanic_Tolaria_Bubble")) {
+            return "";
+        }
+        return eid;
     }
 
-    //Replaces @ with 1234 because @ isn't a number
     public static long getIDNumber(String id) {
-        return Long.parseLong(id.replaceAll("\\w\\[", "").replaceAll("\\]", "").replaceAll("@", "1234").trim().split(" ")[0]);
+        return Long.parseLong(id.replaceAll("\\w\\[|]|@", "").trim().split(" ")[0]);
     }
 }

@@ -1,6 +1,15 @@
-package drzed;
+package drzed.GUI;
 
+import drzed.Configs;
+import drzed.Data.Ability;
+import drzed.Data.Encounter;
+import drzed.Data.Entity;
+import drzed.MagicParser;
+import drzed.Main;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -11,7 +20,9 @@ import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
@@ -19,83 +30,73 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DecimalFormat;
 
 @SuppressWarnings("all")
-public class Controller {
-
+public class MainController {
     @FXML
     public LineChart lineChart;
     @FXML
-    public MenuItem themeB;
-    @FXML
-    public MenuItem aboutB;
-    @FXML
     public MenuItem fileB;
-    @FXML
-    public MenuItem closeB;
     @FXML
     public PieChart pieChart = new PieChart();
     @FXML
-    public TableView<DataEntity> table = new TableView<DataEntity>();
+    public TableView<Entity> table = new TableView<>();
     @FXML
-    public TableView<DataAbility> statsTbl = new TableView<DataAbility>();
+    public TableView<Ability> statsTbl = new TableView<>();
 
     @FXML
-    public TableColumn<DataEntity, String> nameCol = new TableColumn("Name");
+    public TableColumn<Entity, String> nameCol = new TableColumn("Name");
     @FXML
-    public TableColumn<DataEntity, Number> damageCol = new TableColumn("Damage");
+    public TableColumn<Entity, Number> damageCol = new TableColumn("Damage");
     @FXML
-    public TableColumn<DataEntity, Number> dpsCol = new TableColumn("DPS");
+    public TableColumn<Entity, Number> dpsCol = new TableColumn("DPS");
     @FXML
-    public TableColumn<DataEntity, Number> healCol = new TableColumn("Heal");
+    public TableColumn<Entity, Number> healCol = new TableColumn("Heal");
     @FXML
-    public TableColumn<DataEntity, Number> hpscol = new TableColumn("HPS");
+    public TableColumn<Entity, Number> hpscol = new TableColumn("HPS");
     @FXML
-    public TableColumn<DataEntity, Number> takenCol = new TableColumn("Taken");
+    public TableColumn<Entity, Number> takenCol = new TableColumn("Taken");
     @FXML
-    public TableColumn<DataEntity, Number> deathCol = new TableColumn("Death");
+    public TableColumn<Entity, Number> deathCol = new TableColumn("Death");
     @FXML
-    public TableColumn<DataEntity, Number> durationCol = new TableColumn("Time");
+    public TableColumn<Entity, Number> durationCol = new TableColumn("Time");
     @FXML
-    public TableColumn<DataEntity, Number> hitsCol = new TableColumn("Hits");
+    public TableColumn<Entity, Number> hitsCol = new TableColumn("Hits");
 
     @FXML
-    public TableColumn<DataAbility, String> abilityCol = new TableColumn<>("Ability");
-//    @FXML
-//    public TableColumn<DataAbility, String> basedmgCol = new TableColumn<>("Base DMG");
+    public TableColumn<Ability, String> abilityCol = new TableColumn<>("Ability");
     @FXML
-    public TableColumn<DataAbility, Number> damageCol2 = new TableColumn<>("Damage");
+    public TableColumn<Ability, Number> damageCol2 = new TableColumn<>("Damage");
     @FXML
-    public TableColumn<DataAbility, Number> dpsCol2 = new TableColumn<>("DPH");
+    public TableColumn<Ability, Number> dpsCol2 = new TableColumn<>("DPH");
     @FXML
-    public TableColumn<DataAbility, Number> hitsCol2 = new TableColumn<>("Hits");
-    @FXML
-    public Button quitBtn;
+    public TableColumn<Ability, Number> hitsCol2 = new TableColumn<>("Hits");
 
-    public static ObservableList<DataEntity> dataEntities = FXCollections.observableArrayList();
-    public static List<Entity> dataEntitiesAdded = new ArrayList<>();
-    public static ObservableList<DataAbility> dataAbilities = FXCollections.observableArrayList();
-    private static ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+    public static ObservableList<Entity> ents = FXCollections.observableArrayList();
+    public static ObservableList<Ability> abils = FXCollections.observableArrayList();
+    private static ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+    private static final DecimalFormat FORMAT = new DecimalFormat("#.##");
 
-    public Controller() {
+    public MainController() {
         table.setEditable(false);
         statsTbl.setEditable(false);
 
         table.getColumns().addAll(nameCol, damageCol, dpsCol, healCol, hpscol, takenCol, deathCol, durationCol, hitsCol);
         statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2);
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        statsTbl.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        table.setItems(dataEntities);
-        statsTbl.setItems(dataAbilities);
+        table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        statsTbl.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        table.setItems(ents);
+        statsTbl.setItems(abils);
+
         pieChart.setLabelsVisible(false);
         pieChart.setStartAngle(180);
         pieChart.setClockwise(true);
 
-        dataEntities = FXCollections.observableArrayList();
-        dataEntitiesAdded = new ArrayList<>();
-        dataAbilities = FXCollections.observableArrayList();
+        ents = FXCollections.observableArrayList();
+        abils = FXCollections.observableArrayList();
+
     }
 
     @FXML
@@ -119,34 +120,57 @@ public class Controller {
 
 
     private static Encounter current;
-    private static DataEntity fil;
     public void update() {
         try {
             MagicParser.ParseFile();
-            if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
-                resetData();
-            }
+        } catch (IOException e) { e.printStackTrace(); }
 
-            if (current == null) return;
-        } catch (IOException e) {
-            System.out.println("ERROR");
-            e.printStackTrace();
+        if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
+            resetData();
         }
 
-        updateDataEntities();
-        if (dataEntities.size() > 0 && dataEntitiesAdded.size() > 0) {
-            updateTable();
-            updateAbilityData();
+        if (current != null) {
+            updateDataEntities();
+            if (ents.size() > 0) {
+                updateTable();
+            }
+            if (table.getSelectionModel().getSelectedIndex() != -1) {
+                updateAbilityData();
+                updatePie();
+//                updateLineChart();
+            }
         }
     }
 
+    private void updateLineChart() {
+        Entity ent = table.getSelectionModel().getSelectedItem();
+        NumberAxis xAxis = new NumberAxis();
+        xAxis.setLabel("Time");
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Damage");
+
+        XYChart.Series<Number, Number> l = new XYChart.Series();
+        int uplimit = 100, dlimit = 2000;
+        l.setName("DPS Overtime");
+        for (int i = 0; i < Math.min(ent.dpsOT.size(), 10); i++) {
+            if (ent.dpsOT.get(i) > uplimit) uplimit = ent.dpsOT.get(i) + 500;
+            l.getData().add(new XYChart.Data(30 * i, ent.dpsOT.get(i)));
+        }
+        yAxis.setUpperBound(uplimit);
+        yAxis.setLowerBound(dlimit);
+        xAxis.setLowerBound(30);
+        xAxis.setUpperBound(3000);
+        lineChart = new LineChart(xAxis, yAxis);
+
+        Platform.runLater(() -> lineChart.getData().add(l));
+    }
+
     private void resetData() {
-        System.out.println("Resetting Data!");
         current = MagicParser.getCurrentEncounter();
         Platform.runLater(() -> pieChart.getData().clear());
-        dataEntities = FXCollections.observableArrayList();
-        dataEntitiesAdded = new ArrayList<>();
-        dataAbilities = FXCollections.observableArrayList();
+        ents = FXCollections.observableArrayList();
+        abils = FXCollections.observableArrayList();
         table.getItems().removeAll();
         inited = false;
     }
@@ -154,22 +178,22 @@ public class Controller {
     boolean inited = false;
     private void updateTable() {
         if (!inited) {
-            table.setItems(dataEntities);
+            table.setItems(ents);
             inited = true;
         }
+//        System.out.println("Table has: " + ents.size() + " Data Has: " + current.getEnts());
+        table.setItems(ents);
         table.refresh();
     }
 
     private void updateDataEntities() {
+//        ents = FXCollections.observableArrayList(current.getEnts().values());
         for (Entity value : current.getEnts().values()) {
-            DataEntity de = new DataEntity(value);
-            if (!dataEntitiesAdded.contains(value)) {
-                dataEntities.add(de);
-                dataEntitiesAdded.add(value);
+            if (!ents.contains(value)) {
+                ents.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
-                    fil = de;
-                    if (fil != null) {
-                        table.getSelectionModel().select(fil);
+                    if (current.filterEntity != null) {
+                        table.getSelectionModel().select(current.filterEntity);
                     }
                 }
             }
@@ -177,24 +201,19 @@ public class Controller {
     }
 
     private void updateAbilityData() {
-        dataAbilities = FXCollections.observableArrayList();
-        statsTbl.getItems().removeAll();
-        if (table.getSelectionModel().getSelectedIndex() != -1) {
-            Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
-            if (ent.abilities.size() > 0) {
-                for (Ability value : ent.abilities.values()) {
-                    dataAbilities.add(new DataAbility(value));
-                }
-                Platform.runLater(() -> statsTbl.setItems(dataAbilities));
-            }
+        Entity ent = table.getSelectionModel().getSelectedItem();
+        abils = FXCollections.observableArrayList(ent.abilities.values());
+        Platform.runLater(() -> statsTbl.setItems(abils));
+        statsTbl.refresh();
+    }
 
-            if (dataAbilities.size() > 0) {
-                for (DataAbility dataAbility : dataAbilities) {
-                    Platform.runLater(() -> addData(dataAbility.ab.name, dataAbility.ab.Damage));
-                }
-            } else {
-                Platform.runLater(() -> pieChart.getData().clear());
+    private void updatePie() {
+        if (abils.size() > 0) {
+            for (Ability ab : abils) {
+                Platform.runLater(() -> addData(ab.name, ab.Damage));
             }
+        } else {
+            Platform.runLater(() -> pieChart.getData().clear());
         }
     }
 
@@ -282,73 +301,72 @@ public class Controller {
     private void setFactories() {
 
         /* SET CELL VALUE FACTORY TO SPECIFIED DATA TYPES */
-        nameCol.setCellValueFactory(cellData -> cellData.getValue().getEntityName());
-        damageCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDamage());
-        dpsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDPS());
-        healCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHealing());
-        hpscol.setCellValueFactory(cellData -> cellData.getValue().getEntityHPS());
-        takenCol.setCellValueFactory(cellData -> cellData.getValue().getEntityTaken());
-        deathCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDeaths());
-        durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
-        hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
+        nameCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().name));
+        damageCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().damageDealt))));
+        dpsCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDPS()))));
+        healCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().healingTaken))));
+        hpscol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getHPS()))));
+        takenCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().damageTaken))));
+        deathCol.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().deaths));
+        durationCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getLifetime()))));
+        hitsCol.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
-        abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
-//                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
-        damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
-        dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
-        hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
+        abilityCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().name));
+        damageCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDamage()))));
+        dpsCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDPH()))));
+        hitsCol2.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
         /* SET DISPLAY FACTORY SO NO NUMBERS ARE FORMATTED IN SCIENTIFIC NOTATION */
-        damageCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        damageCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        dpsCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        dpsCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        healCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        healCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        hpscol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        hpscol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        takenCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        takenCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        durationCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+        durationCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        damageCol2.setCellFactory(tc -> new TableCell<DataAbility, Number>() {
+        damageCol2.setCellFactory(tc -> new TableCell<Ability, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
-        dpsCol2.setCellFactory(tc -> new TableCell<DataAbility, Number>() {
+        dpsCol2.setCellFactory(tc -> new TableCell<Ability, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
@@ -357,19 +375,19 @@ public class Controller {
         });
 
         /* SET ROW FACTORY TO COLORIZE ROWS WITH OWNERS (PETS) */
-        table.setRowFactory(tv -> new TableRow<DataEntity>() {
+        table.setRowFactory(tv -> new TableRow<Entity>() {
             @Override
-            protected void updateItem(DataEntity item, boolean empty) {
+            protected void updateItem(Entity item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item != null && item.ent != null && item.ent.isPlayer && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
+                if (item != null && item != null && item.isPlayer && table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().getSelectedItem().name.equalsIgnoreCase(item.name)) {
                     setStyle("-fx-background-color:" + Configs.playerColor);
                 }
-                if (item != null && item.ent != null && item.ent.ownerEntity != null) {
-                    Entity owner = item.ent.ownerEntity;
+                if (item != null && item != null && item.ownerEntity != null && !item.ownerEntity.isEmpty()) {
+                    Entity owner = current.getEntity(item.ownerEntity);
                     if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
                         setStyle("-fx-background-color:" + Configs.ownPetColor);
                     } else if (table.getSelectionModel().getSelectedIndex() != -1) {
-                        Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
+                        Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ID);
                         if (owner.name.equalsIgnoreCase(ent.name)) {
                             setStyle("-fx-background-color:" + Configs.selectedPetColor);
                         }

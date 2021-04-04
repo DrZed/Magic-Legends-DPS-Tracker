@@ -1,4 +1,4 @@
-package drzed;
+package drzed.Data;
 
 import java.util.Comparator;
 
@@ -28,5 +28,8 @@ public class Ability {
 
     public double getDamage() {
         return Damage;
+    }
+    public double getDPH() {
+        return Damage / hits;
     }
 }

@@ -1,19 +1,16 @@
-package drzed;
+package drzed.GUI;
 
+import drzed.Configs;
+import drzed.Data.Ability;
+import drzed.Data.Entity;
+import drzed.MagicParser;
+import drzed.Main;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
 
 import java.io.IOException;
 import java.util.Map;
