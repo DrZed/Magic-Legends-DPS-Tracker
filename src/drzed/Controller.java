@@ -361,7 +361,7 @@ public class Controller {
             @Override
             protected void updateItem(DataEntity item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item != null && item.ent != null && item.ent.isPlayer && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
+                if (item != null && item.ent != null && item.ent.isPlayer && table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
                     setStyle("-fx-background-color:" + Configs.playerColor);
                 }
                 if (item != null && item.ent != null && item.ent.ownerEntity != null) {
