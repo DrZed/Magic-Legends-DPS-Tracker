@@ -12,25 +12,14 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.Controller">
+<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.MainController">
    <children>
       <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#openMini" text="Open Mini" />
-              <MenuItem fx:id="closeB" mnemonicParsing="false" onAction="#close" text="Close" />
-                  <MenuItem fx:id="fileB" mnemonicParsing="false" onAction="#onFile" text="File.." />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem fx:id="themeB" mnemonicParsing="false" onAction="#onTheme" text="Theme" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem fx:id="aboutB" mnemonicParsing="false" onAction="#onAbout" text="About" />
+                  <MenuItem mnemonicParsing="false" onAction="#onFile" text="File.." />
             </items>
           </Menu>
         </menus>
@@ -44,7 +33,7 @@
         </yAxis>
       </LineChart>
       <PieChart fx:id="pieChart" layoutX="989.0" layoutY="406.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="324.0" prefWidth="583.0" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="5.0" />
-      <Button fx:id="quitBtn" mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="1228.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Button mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="1228.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <TableView fx:id="table" layoutY="27.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="355.0" prefWidth="750.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="27.0">
         <columns>
           <TableColumn fx:id="nameCol" prefWidth="130.0" text="Name" />

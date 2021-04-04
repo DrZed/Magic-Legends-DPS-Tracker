@@ -1,13 +1,18 @@
 package drzed;
 
+import drzed.Data.Ability;
+import drzed.Data.Encounter;
+import drzed.Data.Entity;
+import drzed.Data.Skill;
+import drzed.Data.subtype.EncounterData;
+import drzed.Data.subtype.EntityNames;
+import drzed.Data.subtype.SkillTypes;
 import hxckdms.hxcconfig.HxCConfig;
 import hxckdms.hxcconfig.handlers.SpecialHandlers;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -19,7 +24,7 @@ import java.io.StringWriter;
 public class Main extends Application {
     public static Stage stage = null;
     public static Stage miniStage = null;
-    static File Directory;
+    public static File Directory;
     private static HxCConfig config;
     public static Main instance;
 
@@ -33,14 +38,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         if (Configs.miniMode) {
-            Parent root = FXMLLoader.load(getClass().getResource("ML_ParseMini.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("GUI/ML_ParseMini.fxml"));
             primaryStage.setTitle("Magic Legends Mini Parser");
             primaryStage.setScene(new Scene(root, Configs.miniDisplayWidth, 35));
             primaryStage.initStyle(StageStyle.TRANSPARENT);
             primaryStage.setAlwaysOnTop(true);
             miniStage = primaryStage;
         } else {
-            Parent root = FXMLLoader.load(getClass().getResource("ML_ParserGUI.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("GUI/ML_ParserGUI.fxml"));
             primaryStage.setTitle("Magic Legends Combat Parser");
             primaryStage.setScene(new Scene(root, 1280, 720));
             primaryStage.initStyle(StageStyle.UNDECORATED);

@@ -1,5 +1,6 @@
-package drzed;
+package drzed.Data.subtype;
 
+import drzed.Data.Entity;
 import hxckdms.hxcconfig.Config;
 
 import java.util.LinkedHashMap;
@@ -23,7 +24,7 @@ public class EntityNames {
         id = Entity.getID(id);
 //        System.out.println("Post Trim : " + id);
         if (!entNameList.containsKey(id)) {
-            System.out.println("Adding Entity to list: " + name);
+//            System.out.println("Adding Entity to list: " + name);
             entNameList.put(id, name);
         }
         return getEntityName(id);

@@ -1,4 +1,4 @@
-package drzed;
+package drzed.Data;
 
 public class Skill {
     public String skillType;

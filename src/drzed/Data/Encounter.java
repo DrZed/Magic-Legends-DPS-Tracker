@@ -1,4 +1,7 @@
-package drzed;
+package drzed.Data;
+
+import drzed.Configs;
+import drzed.Data.subtype.SkillTypes;
 
 import java.util.LinkedHashMap;
 
@@ -9,6 +12,7 @@ public class Encounter {
     public LinkedHashMap<String, Entity> allEntities;
     public LinkedHashMap<String, Long> entityDeaths;
     public LinkedHashMap<String, Entity> noDupedEntities;
+    public Entity filterEntity;
 
     public Encounter() {}
 
@@ -20,7 +24,7 @@ public class Encounter {
     }
 
     public void end(long endTime) {
-        duration = time - endTime;
+        duration = endTime - time;
         allEntities.forEach((a, b) -> {
             b.kill(endTime);
         });
@@ -38,9 +42,9 @@ public class Encounter {
             if (pet != null) {
                 String enid = pet.internalName;
                 if (enid.startsWith("Spell_")) {
-                    SkillTypes.getType(petName, petID, magnitude);
+                    SkillTypes.getType(petName, enid, magnitude);
                     if (owner != null)
-                        updateAbility(owner, petID, magnitude, baseMagnitude);
+                        updateAbility(owner, enid, magnitude, baseMagnitude);
                 } else {
                     updateAbility(pet, abilityID, magnitude, baseMagnitude);
                     if (owner != null)
@@ -67,7 +71,7 @@ public class Encounter {
 
     private void addPetToEntity(Entity owner, Entity pet) {
         owner.addPetID(pet.ID);
-        pet.ownerEntity = owner;
+        pet.ownerEntity = owner.ID;
     }
     private void addDamageToEntity(Entity target, Entity source, double damage) {
         target.updateDamageTaken(damage);
@@ -90,7 +94,10 @@ public class Encounter {
         if (!entityDeaths.containsKey(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
             entityDeaths.put(enid, 0L);
         }
-        return Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
+        Entity e = Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
+        if (e.name.equalsIgnoreCase(Configs.defaultFilter)) filterEntity = e;
+//        System.out.println("Returning entity : " + nm);
+        return e;
     }
 
 

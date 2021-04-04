@@ -1,5 +1,6 @@
-package drzed;
+package drzed.Data.subtype;
 
+import drzed.Data.Encounter;
 import hxckdms.hxcconfig.Config;
 
 @Config
