@@ -16,6 +16,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -25,6 +26,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -72,6 +74,8 @@ public class MainController {
     public TableColumn<Ability, Number> dpsCol2 = new TableColumn<>("DPH");
     @FXML
     public TableColumn<Ability, Number> hitsCol2 = new TableColumn<>("Hits");
+    @FXML
+    public Menu menuD;
 
     public static ObservableList<Entity> ents = FXCollections.observableArrayList();
     public static ObservableList<Ability> abils = FXCollections.observableArrayList();
@@ -123,6 +127,7 @@ public class MainController {
     public void update() {
         try {
             MagicParser.ParseFile();
+//            Platform.runLater(() -> labl.setText("Main.TITLE"));
         } catch (IOException e) { e.printStackTrace(); }
 
         if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {

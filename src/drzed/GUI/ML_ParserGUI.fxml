@@ -16,7 +16,7 @@
    <children>
       <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu fx:id="menuD" mnemonicParsing="false" text="File">
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#openMini" text="Open Mini" />
                   <MenuItem mnemonicParsing="false" onAction="#onFile" text="File.." />
