@@ -93,7 +93,7 @@ public class MagicParser {
     }
 //21:03:28:13:37:09.4::
 // Keldon Warlord,P[440730@31580857 Keldon Warlord@KeldonSlayer#31282],,*,,*,[Sorcery risk/reward],Pn.0xgzi41,Physical,ShieldBreak,40999.3,0
-//    Time  ::   ownDsp  ,   ownInt    ,     srcDsp  ,   srcInt   ,  tgtDsp  ,   tgtInt  ,evtDsp,  evtInt  ,type ,flags,mag,magBase
+//    Time  ::   self , selfID, pet, petID, target, targetID, ability, abilityID,type ,flags, magnitude, magnitudeBase
 
     private static Encounter currentEncounter;
     private static long lastEncUpT = 0;
@@ -105,10 +105,10 @@ public class MagicParser {
         long t = zonedDateTime.toInstant().toEpochMilli();
         String[] parts = line.split("::")[1].split(",");
 
-        String selfName = parts[0]; //Source of Event Name
-        String selfID = parts[1]; //Source of Event ID
-        String sourceName = parts[2]; //Owner Name
-        String sourceID = parts[3]; //Owner ID
+        String ownerName = parts[0]; //Source of Event Trigger
+        String ownerID = parts[1]; //Source of Event Trigger
+        String petName = parts[2]; //Source if Pet
+        String petID = parts[3]; //Source if Pet
         String targetName = parts[4]; //Damage Recipient Name
         String targetID = parts[5]; //Damage Recipient ID
         String eventName = parts[6]; //Skill Name
@@ -119,8 +119,8 @@ public class MagicParser {
         String magnitudeBase = parts[11]; //Magnitude Base (before vulnerability calculation)
 
 
-        if (selfName.equalsIgnoreCase(Configs.defaultFilter)) {
-            myID = selfID;
+        if (ownerName.equalsIgnoreCase(Configs.defaultFilter)) {
+            myID = ownerID;
         }
 
         float mag = Float.parseFloat(magnitude);
@@ -133,9 +133,9 @@ public class MagicParser {
         }
 
         EntityNames.addEntityName(targetName, targetID);
-        EntityNames.addEntityName(selfName, selfID);
-        EntityNames.addEntityName(sourceName, sourceID);
-        currentEncounter.updateEntity(selfName, selfID, sourceName, sourceID, targetName, targetID, t, eventName, eventID, flags, mag, baseMag);
+        EntityNames.addEntityName(ownerName, ownerID);
+        EntityNames.addEntityName(petName, petID);
+        currentEncounter.updateEntity(ownerName, ownerID, petName, petID, targetName, targetID, t, eventName, eventID, flags, mag, baseMag);
 //        System.out.print(".");
         if (!flags.trim().isEmpty()) {
 //            System.out.println(flags);

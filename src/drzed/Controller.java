@@ -64,8 +64,8 @@ public class Controller {
 
     @FXML
     public TableColumn<DataAbility, String> abilityCol = new TableColumn<>("Ability");
-    @FXML
-    public TableColumn<DataAbility, String> basedmgCol = new TableColumn<>("Base DMG");
+//    @FXML
+//    public TableColumn<DataAbility, String> basedmgCol = new TableColumn<>("Base DMG");
     @FXML
     public TableColumn<DataAbility, String> damageCol2 = new TableColumn<>("Damage");
     @FXML
@@ -85,7 +85,7 @@ public class Controller {
         statsTbl.setEditable(false);
 
         table.getColumns().addAll(nameCol, damageCol, dpsCol, healCol, hpscol, takenCol, deathCol, durationCol, hitsCol);
-        statsTbl.getColumns().addAll(abilityCol, basedmgCol, damageCol2, dpsCol2, hitsCol2);
+        statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2);
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         statsTbl.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.setItems(dataEntities);
@@ -211,7 +211,7 @@ public class Controller {
                     dataAbilities.add(new DataAbility(value));
                 }
                 abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
-                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
+//                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
                 damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
                 dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
                 hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
