@@ -27,73 +27,66 @@ public class Encounter {
     }
 
     public void updateEntity(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String flag, double magnitude, double baseMagnitude) {
-        if (ownerName.trim().isEmpty()) return;
+        Entity owner = getOrAddEntity(ownerName, ownerID, t);
+        Entity pet = getOrAddEntity(petName, petID, t);
+        Entity target = getOrAddEntity(targetName, targetID, t);
         String tp = SkillTypes.getType(abilityName, abilityID, magnitude);
+
         if (tp.equals("DMG")) {
-            addDamageToEntity(targetName, targetID, t, ownerName, ownerID, magnitude);
-            if (!petID.isEmpty() && !petID.equalsIgnoreCase("*")) {
-                String enid = Entity.getID(petID);
+            if (target != null)
+                addDamageToEntity(target, owner, magnitude);
+            if (pet != null) {
+                String enid = pet.internalName;
                 if (enid.startsWith("Spell_")) {
                     SkillTypes.getType(petName, petID, magnitude);
-                    updateAbility(ownerName, ownerID, t, petID, magnitude, baseMagnitude);
+                    if (owner != null)
+                        updateAbility(owner, petID, magnitude, baseMagnitude);
                 } else {
-                    updateAbility(petName, petID, t, abilityID, magnitude, baseMagnitude);
-                    addPetToEntity(ownerName, ownerID, t, petName, petID);
+                    updateAbility(pet, abilityID, magnitude, baseMagnitude);
+                    if (owner != null)
+                        addPetToEntity(owner, pet);
                 }
             } else {
-                updateAbility(ownerName, ownerID, t, abilityID, magnitude, baseMagnitude);
+                if (owner != null)
+                    updateAbility(owner, abilityID, magnitude, baseMagnitude);
             }
         }
         if (tp.equals("HEAL")) {
-            addHealingToEntity(ownerName, ownerID, t, abilityName, abilityID, magnitude, baseMagnitude);
+            if (owner != null)
+                addHealingToEntity(owner, abilityName, abilityID, magnitude, baseMagnitude);
         }
         if (!flag.trim().isEmpty() && flag.trim().equalsIgnoreCase("kill")) {
-            killEntity(targetName, targetID, t);
+            if (target != null)
+                killEntity(target, t);
         }
     }
 
-    private void updateAbility(String name, String id, long t, String abilityID, double damage, double baseMag) {
-        Entity e = getOrAddEntity(name, id, t);
-        if (e == null) return;
+    private void updateAbility(Entity e, String abilityID, double damage, double baseMag) {
         e.updateAbility(abilityID, damage, baseMag);
     }
 
-    private void addPetToEntity(String ownerName, String ownerID, long t, String petName, String petID) {
-        if (petID.trim().equalsIgnoreCase("*") || petID.trim().isEmpty()) return;
-        Entity e = getOrAddEntity(ownerName, ownerID, t);
-        Entity e2 = getOrAddEntity(petName, petID, t);
-        if (e == null || e2 == null) return;
-        e.addPetID(e2.ID);
-        e2.ownerEntity = e;
+    private void addPetToEntity(Entity owner, Entity pet) {
+        owner.addPetID(pet.ID);
+        pet.ownerEntity = owner;
+    }
+    private void addDamageToEntity(Entity target, Entity source, double damage) {
+        target.updateDamageTaken(damage);
     }
 
-    private void addDamageToEntity(String targetName, String targetID, long t, String sourceName, String sourceID, double damage) {
-        Entity e = getOrAddEntity(targetName, targetID, t);
-        if (e == null) return;
-        e.updateDamageTaken(damage);
-    }
-
-    private void addHealingToEntity(String targetName, String targetID, long t, String abilityName, String abilityID, double heal, double baseMag) {
-        Entity e = getOrAddEntity(targetName, targetID, t);
-        if (e == null) return;
+    private void addHealingToEntity(Entity e, String abilityName, String abilityID, double heal, double baseMag) {
         e.healEntity(abilityID, heal, baseMag);
     }
 
-    private void killEntity(String targetName, String targetID, long t) {
-        Entity e = getOrAddEntity(targetName, targetID, t);
-        if (e == null) return;
+    private void killEntity(Entity e, long t) {
         e.kill(t);
-        String enid = Entity.getID(targetID);
-        entityDeaths.replace(enid, entityDeaths.get(enid) + 1);
+        entityDeaths.replace(e.internalName, entityDeaths.get(e.internalName) + 1);
     }
 
     private Entity getOrAddEntity(String nm, String id, long t) {
         String enid = Entity.getID(id);
-     /*   if (Configs.bannedEntityIDs.contains(enid)) ||
-                enid.isEmpty()) {
-//            System.out.println("Returning null on entity name: " + nm + " ID " + id);
+        if (enid.isEmpty()) {
             return null;
-        }*/
+        }
         if (!entityDeaths.containsKey(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
             entityDeaths.put(enid, 0L);
         }

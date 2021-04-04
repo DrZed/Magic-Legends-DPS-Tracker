@@ -129,6 +129,7 @@ public class Controller {
 
             if (current == null) return;
         } catch (IOException e) {
+            System.out.println("ERROR");
             e.printStackTrace();
         }
 
@@ -140,6 +141,7 @@ public class Controller {
     }
 
     private void resetData() {
+        System.out.println("Resetting Data!");
         current = MagicParser.getCurrentEncounter();
         Platform.runLater(() -> pieChart.getData().clear());
         dataEntities = FXCollections.observableArrayList();
