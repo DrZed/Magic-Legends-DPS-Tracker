@@ -22,16 +22,23 @@ public class MagicParser {
     static String myID;
 
     static void ParseFile() throws IOException {
-        String line;
-        if (tryAndSetNewFile()) {
-            if ((line = in.readLine()) != null) {
-                polls = 0;
-                inEncounter = true;
-                parseLine(line);
+        for (int lineIndex = 0; lineIndex < Configs.linesToParsePerUpdate; lineIndex++) {
+            String line;
+            if (tryAndSetNewFile()) {
+                if ((line = in.readLine()) != null) {
+                    polls = 0;
+                    inEncounter = true;
+                    parseLine(line);
+                } else {
+                    polls++;
+
+                    // No new lines? break and wait for next update
+                    break;
+                }
+                if (polls >= (Configs.endEncounterTimer / Configs.guiPollRate) && inEncounter) endEncounter();
             } else {
-                polls++;
+                break;
             }
-            if (polls >= (Configs.endEncounterTimer / Configs.guiPollRate) && inEncounter) endEncounter();
         }
     }
 

@@ -15,6 +15,8 @@ public class Configs {
     public static String defaultFilter = "Keldon Warlord";
     @Config.comment("How long to wait before looking for updates to gui in milliseconds, 15 = 66fps")
     public static int guiPollRate = 15;
+    @Config.comment("How many lines to parse per update (higher value will decrease the performance of the app but increase the reading speed from the logs)")
+    public static int linesToParsePerUpdate = 100;
     @Config.comment("you can remove N: %7$s from the front if you are going to use a smaller width")
     public static String miniDisplayFormat = "N: %7$s DPS: %1$s DMG: %2$s TS: \"%3$s\" DPS: %4$s DMG: %5$s T:%6$s";
     @Config.comment("This is overlay mode's window width")
