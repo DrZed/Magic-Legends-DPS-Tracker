@@ -77,6 +77,7 @@ public class MainController {
     public static ObservableList<Ability> abils = FXCollections.observableArrayList();
     private static ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
     private static final DecimalFormat FORMAT = new DecimalFormat("#.##");
+    private static Entity curFiltEnt;
 
     public MainController() {
         table.setEditable(false);
@@ -96,7 +97,6 @@ public class MainController {
 
         ents = FXCollections.observableArrayList();
         abils = FXCollections.observableArrayList();
-
     }
 
     @FXML
@@ -183,6 +183,7 @@ public class MainController {
         }
 //        System.out.println("Table has: " + ents.size() + " Data Has: " + current.getEnts());
         table.setItems(ents);
+        table.sort();
         table.refresh();
     }
 
@@ -192,8 +193,8 @@ public class MainController {
             if (!ents.contains(value)) {
                 ents.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
-                    if (current.filterEntity != null) {
-                        table.getSelectionModel().select(current.filterEntity);
+                    if (current.getFilterEntity()  != null) {
+                        table.getSelectionModel().select(current.getFilterEntity());
                     }
                 }
             }
@@ -202,14 +203,25 @@ public class MainController {
 
     private void updateAbilityData() {
         Entity ent = table.getSelectionModel().getSelectedItem();
-        abils = FXCollections.observableArrayList(ent.abilities.values());
-        Platform.runLater(() -> statsTbl.setItems(abils));
+        if (curFiltEnt == null || !ent.name.equalsIgnoreCase(curFiltEnt.name)) {
+            curFiltEnt = ent;
+            System.out.println("Resetting Table");
+            abils = FXCollections.observableArrayList(ent.abilities.values());
+            Platform.runLater(() -> statsTbl.setItems(abils));
+        } else {
+            for (Ability ability : FXCollections.observableArrayList(ent.abilities.values())) {
+                if (!statsTbl.getItems().contains(ability)) {
+                    Platform.runLater(() -> statsTbl.getItems().add(ability));
+                }
+            }
+        }
+        statsTbl.sort();
         statsTbl.refresh();
     }
 
     private void updatePie() {
-        if (abils.size() > 0) {
-            for (Ability ab : abils) {
+        if (statsTbl.getItems().size() > 0) {
+            for (Ability ab : statsTbl.getItems()) {
                 Platform.runLater(() -> addData(ab.name, ab.Damage));
             }
         } else {

@@ -74,9 +74,9 @@ public class Main extends Application {
     private static void registerHandlers() {
         SpecialHandlers.registerSpecialClass(Ability.class);
         SpecialHandlers.registerSpecialClass(Entity.class);
-        SpecialHandlers.registerSpecialClass(Encounter.class);
         SpecialHandlers.registerSpecialClass(Skill.class);
         SpecialHandlers.registerSpecialClass(SkillTypes.class);
+        SpecialHandlers.registerSpecialClass(Encounter.class);
     }
 
     private static void registerConfigs() {
@@ -98,7 +98,6 @@ public class Main extends Application {
         String fdir = ddir + "/Magic Legends/Live/logs/GameClient";
         if (ddir != null && !ddir.equalsIgnoreCase("null") && !ddir.isEmpty()) {
             Configs.combatLogFolder = fdir;
-//            System.out.println("set fdir to combatlogfolder : " + fdir);
             resaveConfig();
         }
         Directory = new File(Configs.combatLogFolder);
@@ -113,6 +112,9 @@ public class Main extends Application {
     }
 
     public static void export(String name) {
+        if (EncounterData.encounter != null) {
+            return;
+        }
         HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
         dummy.initConfiguration();
         File sk = new File("./ML_Skill_Data.cfg");

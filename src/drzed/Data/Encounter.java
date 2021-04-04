@@ -12,7 +12,8 @@ public class Encounter {
     public LinkedHashMap<String, Entity> allEntities;
     public LinkedHashMap<String, Long> entityDeaths;
     public LinkedHashMap<String, Entity> noDupedEntities;
-    public Entity filterEntity;
+
+    private Entity filterEntity;
 
     public Encounter() {}
 
@@ -100,6 +101,9 @@ public class Encounter {
         return e;
     }
 
+    public Entity getFilterEntity() {
+        return filterEntity;
+    }
 
     private Entity getOrAddEntityDupe(String nm, String id, long t) {
         if (!allEntities.containsKey(id))
