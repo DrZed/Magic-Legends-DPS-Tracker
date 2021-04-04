@@ -379,10 +379,10 @@ public class MainController {
             @Override
             protected void updateItem(Entity item, boolean empty) {
                 super.updateItem(item, empty);
-                if (item != null && item.ent != null && item.ent.isPlayer && table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
+                if (item != null && item.isPlayer && table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().getSelectedItem().name.equalsIgnoreCase(item.name)) {
                     setStyle("-fx-background-color:" + Configs.playerColor);
                 }
-                if (item != null && item != null && item.ownerEntity != null && !item.ownerEntity.isEmpty()) {
+                if (item != null && item.ownerEntity != null && !item.ownerEntity.isEmpty()) {
                     Entity owner = current.getEntity(item.ownerEntity);
                     if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
                         setStyle("-fx-background-color:" + Configs.ownPetColor);
