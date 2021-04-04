@@ -1,11 +1,13 @@
 package drzed;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+
+import java.text.DecimalFormat;
 
 @SuppressWarnings("WeakerAccess")
 public class DataEntity {
     Entity ent;
+    DecimalFormat df = new DecimalFormat("#.##");
 
     public DataEntity() {}
 
@@ -19,28 +21,28 @@ public class DataEntity {
     public StringProperty getEntityID() {
         return new SimpleStringProperty(ent.ID);
     }
-    public StringProperty getEntityDamage() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.damageDealt));
+    public DoubleProperty getEntityDamage() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.damageDealt)));
     }
-    public StringProperty getEntityDPS() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.damageDealt > 0 ? ent.damageDealt / ent.getLifetime() : 0));
+    public DoubleProperty getEntityDPS() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.damageDealt > 0 ? ent.damageDealt / ent.getLifetime() : 0)));
     }
-    public StringProperty getEntityHealing() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.healingTaken));
+    public DoubleProperty getEntityHealing() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.healingTaken)));
     }
-    public StringProperty getEntityHPS() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.healingTaken > 0 ? ent.healingTaken / ent.getLifetime() : 0));
+    public DoubleProperty getEntityHPS() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.healingTaken > 0 ? ent.healingTaken / ent.getLifetime() : 0)));
     }
-    public StringProperty getEntityTaken() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.damageTaken));
+    public DoubleProperty getEntityTaken() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.damageTaken)));
     }
-    public StringProperty getEntityDeaths() {
-        return new SimpleStringProperty(String.valueOf(ent.deaths));
+    public LongProperty getEntityDeaths() {
+        return new SimpleLongProperty(ent.deaths);
     }
-    public StringProperty getEntityLifetime() {
-        return new SimpleStringProperty(String.format("%1$,.1f", ent.getLifetime()));
+    public DoubleProperty getEntityLifetime() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ent.getLifetime())));
     }
-    public StringProperty getEntityHits() {
-        return new SimpleStringProperty(String.valueOf(ent.hits));
+    public LongProperty getEntityHits() {
+        return new SimpleLongProperty(ent.hits);
     }
 }

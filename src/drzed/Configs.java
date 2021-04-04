@@ -20,6 +20,7 @@ public class Configs {
     public static boolean condensedMode = true;
     public static int selfColor = 0x660000;
     public static int otherPetColor = 0x000055;
+    public static int otherPlayerColor = 0x004400;
     public static List<String> bannedEntityIDs = new ArrayList<>();
     static {
         bannedEntityIDs.add("Modifier_Enemy_Augmented_Red_Enraged_Hazard");

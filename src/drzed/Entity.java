@@ -21,6 +21,7 @@ public class Entity {
     public long IDNum;
     public List<String> petIds;
     public Entity ownerEntity;
+    public boolean isPlayer;
 
     public Entity() {}
 
@@ -28,6 +29,7 @@ public class Entity {
         name = EntityName;
         ID = Identifier;
         firstSeen = first;
+        isPlayer = Identifier.startsWith("P");
         abilities = new HashMap<>();
         petIds = new ArrayList<>();
         healingSources = new HashMap<>();
@@ -39,8 +41,18 @@ public class Entity {
     public void updateSeen(long t) {
         lastSeen = t;
     }
-
+//Pn.Amuy251=[ name=Mindlash ]
+//Pn.E19zs41=[ name=Mindlash ]
+//Pn.B6i4z31=[ name=Mindlash ]
+//Pn.67gyc51=[ name=Mindlash ]
+//Pn.5b8h1s=[ name=power that gives a bonus when you drop below a pct of mana ]
     public void updateAbility(String abilityID, double damage, double base) {
+        if (abilityID.equalsIgnoreCase("Pn.Amuy251") ||
+                abilityID.equalsIgnoreCase("Pn.E19zs41") ||
+                abilityID.equalsIgnoreCase("Pn.B6i4z31") ||
+                abilityID.equalsIgnoreCase("Pn.67gyc51")) { //Because go fk yourself multiple ids
+            abilityID = "Pn.Amuy251";
+        }
         if (!abilities.containsKey(abilityID)) {
             abilities.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
         }
@@ -85,7 +97,7 @@ public class Entity {
     }
 
     public double getLifetime() {
-        return (lastSeen - firstSeen) / 1000D;
+        return Math.max(1.0D, (lastSeen - firstSeen) / 1000D);
     }
 
     public static String getID(Entity ent) {

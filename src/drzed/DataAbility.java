@@ -1,44 +1,36 @@
 package drzed;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+
+import java.text.DecimalFormat;
 
 @SuppressWarnings("WeakerAccess")
 public class DataAbility {
-    public double abilityDamage;
-    public double abilityDPS;
-    public double abilityHits;
-    public String abilityName;
-    public String abilityID;
-    public double abilityBaseDamage;
+    Ability ab;
+    DecimalFormat df = new DecimalFormat("#.##");
 
     public DataAbility() {}
 
-    public DataAbility(Ability ab) {
-        abilityDamage = ab.Damage;
-        abilityHits = ab.hits;
-        abilityDPS = ab.Damage / abilityHits;
-        abilityName = ab.name;
-        abilityID = ab.ID;
-        abilityBaseDamage = ab.baseDamage;
+    public DataAbility(Ability abil) {
+        ab = abil;
     }
 
     public StringProperty getAbilityName() {
-        return new SimpleStringProperty(abilityName);
+        return new SimpleStringProperty(ab.name);
     }
     public StringProperty getAbilityID() {
-        return new SimpleStringProperty(abilityID);
+        return new SimpleStringProperty(ab.ID);
     }
-    public StringProperty getAbilityDamage() {
-        return new SimpleStringProperty(String.format("%1$,.1f", abilityDamage));
+    public DoubleProperty getAbilityDamage() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ab.Damage)));
     }
-    public StringProperty getAbilityBaseDamage() {
-        return new SimpleStringProperty(String.format("%1$,.1f", abilityBaseDamage));
+    public DoubleProperty getAbilityBaseDamage() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ab.baseDamage)));
     }
-    public StringProperty getAbilityDPS() {
-        return new SimpleStringProperty(String.format("%1$,.1f", abilityDPS));
+    public DoubleProperty getAbilityDPS() {
+        return new SimpleDoubleProperty(Double.parseDouble(df.format(ab.Damage / ab.hits)));
     }
-    public StringProperty getAbilityHits() {
-        return new SimpleStringProperty(String.valueOf(abilityHits));
+    public LongProperty getAbilityHits() {
+        return new SimpleLongProperty(ab.hits);
     }
 }

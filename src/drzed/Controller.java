@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,32 +47,32 @@ public class Controller {
     @FXML
     public TableColumn<DataEntity, String> nameCol = new TableColumn("Name");
     @FXML
-    public TableColumn<DataEntity, String> damageCol = new TableColumn("Damage");
+    public TableColumn<DataEntity, Number> damageCol = new TableColumn("Damage");
     @FXML
-    public TableColumn<DataEntity, String> dpsCol = new TableColumn("DPS");
+    public TableColumn<DataEntity, Number> dpsCol = new TableColumn("DPS");
     @FXML
-    public TableColumn<DataEntity, String> healCol = new TableColumn("Heal");
+    public TableColumn<DataEntity, Number> healCol = new TableColumn("Heal");
     @FXML
-    public TableColumn<DataEntity, String> hpscol = new TableColumn("HPS");
+    public TableColumn<DataEntity, Number> hpscol = new TableColumn("HPS");
     @FXML
-    public TableColumn<DataEntity, String> takenCol = new TableColumn("Taken");
+    public TableColumn<DataEntity, Number> takenCol = new TableColumn("Taken");
     @FXML
-    public TableColumn<DataEntity, String> deathCol = new TableColumn("Death");
+    public TableColumn<DataEntity, Number> deathCol = new TableColumn("Death");
     @FXML
-    public TableColumn<DataEntity, String> durationCol = new TableColumn("Time");
+    public TableColumn<DataEntity, Number> durationCol = new TableColumn("Time");
     @FXML
-    public TableColumn<DataEntity, String> hitsCol = new TableColumn("Hits");
+    public TableColumn<DataEntity, Number> hitsCol = new TableColumn("Hits");
 
     @FXML
     public TableColumn<DataAbility, String> abilityCol = new TableColumn<>("Ability");
 //    @FXML
 //    public TableColumn<DataAbility, String> basedmgCol = new TableColumn<>("Base DMG");
     @FXML
-    public TableColumn<DataAbility, String> damageCol2 = new TableColumn<>("Damage");
+    public TableColumn<DataAbility, Number> damageCol2 = new TableColumn<>("Damage");
     @FXML
-    public TableColumn<DataAbility, String> dpsCol2 = new TableColumn<>("DPH");
+    public TableColumn<DataAbility, Number> dpsCol2 = new TableColumn<>("DPH");
     @FXML
-    public TableColumn<DataAbility, String> hitsCol2 = new TableColumn<>("Hits");
+    public TableColumn<DataAbility, Number> hitsCol2 = new TableColumn<>("Hits");
     @FXML
     public Button quitBtn;
 
@@ -101,6 +102,8 @@ public class Controller {
 
     @FXML
     private void initialize() {
+        setFactories();
+
         Task task = new Task<Void>() {
             @Override public Void call() {
                 while (true) {
@@ -116,26 +119,16 @@ public class Controller {
         new Thread(task).start();
     }
 
+
     private static Encounter current;
     private static DataEntity fil;
     public void update() {
         try {
             MagicParser.ParseFile();
-            if (current == null && MagicParser.getCurrentEncounter() != null) {
-                current = MagicParser.getCurrentEncounter();
-                Platform.runLater(() -> pieChart.getData().clear());
-                dataEntities = FXCollections.observableArrayList();
-                dataEntitiesAdded = new ArrayList<>();
-                dataAbilities = FXCollections.observableArrayList();
-                table.getItems().removeAll();
-            } else if (current != null && MagicParser.getCurrentEncounter() != null && current != MagicParser.getCurrentEncounter()) {
-                current = MagicParser.getCurrentEncounter();
-                Platform.runLater(() -> pieChart.getData().clear());
-                dataEntities = FXCollections.observableArrayList();
-                dataEntitiesAdded = new ArrayList<>();
-                dataAbilities = FXCollections.observableArrayList();
-                table.getItems().removeAll();
+            if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
+                resetData();
             }
+
             if (current == null) return;
         } catch (IOException e) {
             e.printStackTrace();
@@ -148,40 +141,22 @@ public class Controller {
         }
     }
 
+    private void resetData() {
+        current = MagicParser.getCurrentEncounter();
+        Platform.runLater(() -> pieChart.getData().clear());
+        dataEntities = FXCollections.observableArrayList();
+        dataEntitiesAdded = new ArrayList<>();
+        dataAbilities = FXCollections.observableArrayList();
+        table.getItems().removeAll();
+        inited = false;
+    }
+
+    boolean inited = false;
     private void updateTable() {
-//        System.out.println("table updating");
-//        System.out.println(dataEntities.size() + "  |  " + dataEntitiesAdded.size());
-//        table.getItems().removeAll();
-
-        nameCol.setCellValueFactory(cellData -> cellData.getValue().getEntityName());
-        damageCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDamage());
-        dpsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDPS());
-        healCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHealing());
-        hpscol.setCellValueFactory(cellData -> cellData.getValue().getEntityHPS());
-        takenCol.setCellValueFactory(cellData -> cellData.getValue().getEntityTaken());
-        deathCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDeaths());
-        durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
-        hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
-
-        table.setRowFactory(tv -> new TableRow<DataEntity>() {
-            @Override
-            protected void updateItem(DataEntity item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null && item.ent != null && item.ent.ownerEntity != null) {
-                    Entity owner = item.ent.ownerEntity;
-                    if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
-                        setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.selfColor)));
-                    } else if (table.getSelectionModel().getSelectedIndex() != -1) {
-                        Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
-                        if (owner.name.equalsIgnoreCase(ent.name)) {
-                            setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPetColor)));
-                        }
-                    }
-                }
-            }
-        });
-
-        table.setItems(dataEntities);
+        if (!inited) {
+            table.setItems(dataEntities);
+            inited = true;
+        }
         table.refresh();
     }
 
@@ -210,17 +185,12 @@ public class Controller {
                 for (Ability value : ent.abilities.values()) {
                     dataAbilities.add(new DataAbility(value));
                 }
-                abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
-//                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
-                damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
-                dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
-                hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
                 Platform.runLater(() -> statsTbl.setItems(dataAbilities));
             }
 
             if (dataAbilities.size() > 0) {
                 for (DataAbility dataAbility : dataAbilities) {
-                    Platform.runLater(() -> addData(dataAbility.abilityName, dataAbility.abilityDamage));
+                    Platform.runLater(() -> addData(dataAbility.ab.name, dataAbility.ab.Damage));
                 }
             } else {
                 Platform.runLater(() -> pieChart.getData().clear());
@@ -307,5 +277,105 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setFactories() {
+
+        /* SET CELL VALUE FACTORY TO SPECIFIED DATA TYPES */
+        nameCol.setCellValueFactory(cellData -> cellData.getValue().getEntityName());
+        damageCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDamage());
+        dpsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDPS());
+        healCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHealing());
+        hpscol.setCellValueFactory(cellData -> cellData.getValue().getEntityHPS());
+        takenCol.setCellValueFactory(cellData -> cellData.getValue().getEntityTaken());
+        deathCol.setCellValueFactory(cellData -> cellData.getValue().getEntityDeaths());
+        durationCol.setCellValueFactory(cellData -> cellData.getValue().getEntityLifetime());
+        hitsCol.setCellValueFactory(cellData -> cellData.getValue().getEntityHits());
+
+        abilityCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityName());
+//                basedmgCol.setCellValueFactory(cellData -> cellData.getValue().getAbilityBaseDamage());
+        damageCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDamage());
+        dpsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityDPS());
+        hitsCol2.setCellValueFactory(cellData -> cellData.getValue().getAbilityHits());
+
+        /* SET DISPLAY FACTORY SO NO NUMBERS ARE FORMATTED IN SCIENTIFIC NOTATION */
+        damageCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        dpsCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        healCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        hpscol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        takenCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        durationCol.setCellFactory(tc -> new TableCell<DataEntity, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        damageCol2.setCellFactory(tc -> new TableCell<DataAbility, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+        dpsCol2.setCellFactory(tc -> new TableCell<DataAbility, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+            }
+        });
+
+        /* SET ROW FACTORY TO COLORIZE ROWS WITH OWNERS (PETS) */
+        table.setRowFactory(tv -> new TableRow<DataEntity>() {
+            @Override
+            protected void updateItem(DataEntity item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null && item.ent != null && item.ent.isPlayer && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
+                    setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPlayerColor)));
+                }
+                if (item != null && item.ent != null && item.ent.ownerEntity != null) {
+                    Entity owner = item.ent.ownerEntity;
+                    if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
+                        setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.selfColor)));
+                    } else if (table.getSelectionModel().getSelectedIndex() != -1) {
+                        Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
+                        if (owner.name.equalsIgnoreCase(ent.name)) {
+                            setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPetColor)));
+                        }
+                    }
+                }
+            }
+        });
     }
 }
