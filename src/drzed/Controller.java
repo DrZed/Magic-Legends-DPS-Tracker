@@ -17,11 +17,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @SuppressWarnings("all")
@@ -362,16 +360,16 @@ public class Controller {
             protected void updateItem(DataEntity item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null && item.ent != null && item.ent.isPlayer && !table.getSelectionModel().getSelectedItem().ent.name.equalsIgnoreCase(item.ent.name)) {
-                    setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPlayerColor)));
+                    setStyle("-fx-background-color:" + Configs.playerColor);
                 }
                 if (item != null && item.ent != null && item.ent.ownerEntity != null) {
                     Entity owner = item.ent.ownerEntity;
                     if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
-                        setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.selfColor)));
+                        setStyle("-fx-background-color:" + Configs.ownPetColor);
                     } else if (table.getSelectionModel().getSelectedIndex() != -1) {
                         Entity ent = current.getEntity(table.getSelectionModel().getSelectedItem().ent.ID);
                         if (owner.name.equalsIgnoreCase(ent.name)) {
-                            setStyle("-fx-background-color:" + String.format("#%06X", (0xFFFFFF & Configs.otherPetColor)));
+                            setStyle("-fx-background-color:" + Configs.selectedPetColor);
                         }
                     }
                 }

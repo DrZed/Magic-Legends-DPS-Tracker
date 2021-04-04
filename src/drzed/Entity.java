@@ -30,6 +30,9 @@ public class Entity {
         ID = Identifier;
         firstSeen = first;
         isPlayer = Identifier.startsWith("P");
+        if (Identifier.contains("Token")) {
+            name += " Token";
+        }
         abilities = new HashMap<>();
         petIds = new ArrayList<>();
         healingSources = new HashMap<>();

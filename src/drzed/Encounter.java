@@ -32,12 +32,16 @@ public class Encounter {
         if (tp.equals("DMG")) {
             addDamageToEntity(targetName, targetID, t, ownerName, ownerID, magnitude);
             if (!petID.isEmpty() && !petID.equalsIgnoreCase("*")) {
-                updateAbility(petName, petID, t, abilityID, magnitude, baseMagnitude);
+                String enid = Entity.getID(petID);
+                if (enid.startsWith("Spell_")) {
+                    SkillTypes.getType(petName, petID, magnitude);
+                    updateAbility(ownerName, ownerID, t, petID, magnitude, baseMagnitude);
+                } else {
+                    updateAbility(petName, petID, t, abilityID, magnitude, baseMagnitude);
+                    addPetToEntity(ownerName, ownerID, t, petName, petID);
+                }
             } else {
                 updateAbility(ownerName, ownerID, t, abilityID, magnitude, baseMagnitude);
-            }
-            if (!petID.trim().isEmpty() && !petID.trim().equalsIgnoreCase("*")) {
-                addPetToEntity(ownerName, ownerID, t, petName, petID);
             }
         }
         if (tp.equals("HEAL")) {
@@ -85,12 +89,12 @@ public class Encounter {
 
     private Entity getOrAddEntity(String nm, String id, long t) {
         String enid = Entity.getID(id);
-        if (Configs.bannedEntityIDs.contains(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_") ||
+     /*   if (Configs.bannedEntityIDs.contains(enid)) ||
                 enid.isEmpty()) {
 //            System.out.println("Returning null on entity name: " + nm + " ID " + id);
             return null;
-        }
-        if (!entityDeaths.containsKey(enid)) {
+        }*/
+        if (!entityDeaths.containsKey(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
             entityDeaths.put(enid, 0L);
         }
         return Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
