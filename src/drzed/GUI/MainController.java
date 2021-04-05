@@ -126,8 +126,10 @@ public class MainController {
 
 
     private static Encounter current;
+    private static boolean reviewMode;
     public void update() {
         try {
+            if (!reviewMode)
             MagicParser.ParseFile();
 //            Platform.runLater(() -> labl.setText("Main.TITLE"));
         } catch (IOException e) { e.printStackTrace(); }
@@ -181,6 +183,7 @@ public class MainController {
         table.getItems().removeAll();
         inited = false;
     }
+
 
     boolean inited = false;
     private void updateTable() {
@@ -258,6 +261,16 @@ public class MainController {
             }
         }
         naiveAddData(name, value);
+    }
+
+    public void loadEncounter(ActionEvent actionEvent) {
+        reviewMode = true;
+        Main.importEnc("CombatLog_2021-04-03_23_06_57.log"); // TODO ListView Drop Down last 5 + 6th pick one via FilePicker
+    }
+
+    public void closeEncounter(ActionEvent actionEvent) {
+        reviewMode = false;
+        //TODO
     }
 
     public void onFile(ActionEvent actionEvent) {

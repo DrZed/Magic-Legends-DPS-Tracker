@@ -144,4 +144,8 @@ public class MagicParser {
         }
         return 0;
     }
+
+    public static void setCurrentEncounter(Encounter encounter) {
+        currentEncounter = encounter;
+    }
 }

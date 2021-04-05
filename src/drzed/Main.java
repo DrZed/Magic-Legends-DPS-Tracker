@@ -134,6 +134,13 @@ public class Main extends Application {
         dummy3.initConfiguration();
     }
 
+    //CombatLog_2021-04-03_23_06_57.log for example
+    public static void importEnc(String name) {
+        HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
+        dummy.initConfiguration();
+        MagicParser.setCurrentEncounter(EncounterData.encounter);
+    }
+
 
     /**
      *
