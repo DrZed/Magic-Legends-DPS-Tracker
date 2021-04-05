@@ -202,8 +202,8 @@ public class MainController {
         abils = FXCollections.observableArrayList();
         Platform.runLater(() -> pieChart.getData().clear());
         if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.resetData RESET TABLES");
-        table.getItems().removeAll();
-        statsTbl.getItems().removeAll();
+        table.getItems().clear();
+        statsTbl.getItems().clear();
         if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.resetData END");
     }
 
