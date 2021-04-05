@@ -23,12 +23,13 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 public class Main extends Application {
-    public static final String TITLE = "Magic Parser v1.9";
+    public static final String TITLE = "Magic Parser v1.10";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
     private static HxCConfig config;
     public static Main instance;
+    public static final boolean DEBUG_ALL_STEPS_MODE = false;
 
     /*
     Due to a user on reddit asking I use default install directory, here's the registry key
@@ -68,6 +69,7 @@ public class Main extends Application {
         registerHandlers();
         registerConfigs();
         initialize();
+//        EncounterData.loadEncounter("CombatLog_2021-04-05_14_08_22.log"); //TEST PASSED
         launch(args);
     }
 
@@ -117,7 +119,12 @@ public class Main extends Application {
     }
 
     public static void export(String name) {
-        if (EncounterData.encounter != null) {
+        if (EncounterData.encounter == null) {
+            System.out.println("ENCOUNTER NULL");
+            return;
+        }
+        if (new File("./data/" + name + ".log").exists()) {
+            System.out.println("EXISTS");
             return;
         }
         HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
@@ -135,10 +142,16 @@ public class Main extends Application {
     }
 
     //CombatLog_2021-04-03_23_06_57.log for example
-    public static void importEnc(String name) {
-        HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
-        dummy.initConfiguration();
+    public static Encounter importEnc(String name) {
+//        HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
+//        dummy.initConfiguration();
+        try {
+            EncounterData.loadEncounter(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         MagicParser.setCurrentEncounter(EncounterData.encounter);
+        return MagicParser.getCurrentEncounter();
     }
 
 

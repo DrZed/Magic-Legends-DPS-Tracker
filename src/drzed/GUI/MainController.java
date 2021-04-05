@@ -31,8 +31,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+
+import static drzed.Main.DEBUG_ALL_STEPS_MODE;
 
 @SuppressWarnings("all")
 public class MainController {
@@ -107,8 +110,10 @@ public class MainController {
 
     @FXML
     private void initialize() {
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.init SET FACTORIES");
         setFactories();
 
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.init CREATE THREAD");
         Task task = new Task<Void>() {
             @Override public Void call() {
                 while (true) {
@@ -127,28 +132,43 @@ public class MainController {
 
     private static Encounter current;
     private static boolean reviewMode;
+    private static boolean newData;
     public void update() {
         try {
-            if (!reviewMode)
-            MagicParser.ParseFile();
+            if (!reviewMode) {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update CALL PARSE FILE");
+                newData = MagicParser.ParseFile();
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update POST FILE");
+            }
 //            Platform.runLater(() -> labl.setText("Main.TITLE"));
         } catch (IOException e) { e.printStackTrace(); }
 
+//        if (!newData) return;
+
         if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update RESET DATA");
             resetData();
         }
 
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE DATA");
         if (current != null) {
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE DATA ENTITIES");
             updateDataEntities();
             if (ents.size() > 0) {
-                updateTable();
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE TABLE");
+                Platform.runLater(() -> updateTable());
             }
             if (table.getSelectionModel().getSelectedIndex() != -1) {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE ABILITY DATA");
                 updateAbilityData();
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE PIE");
                 updatePie();
 //                updateLineChart();
             }
         }
+
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update END");
+        newData = false;
     }
 
     private void updateLineChart() {
@@ -176,38 +196,39 @@ public class MainController {
     }
 
     private void resetData() {
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.resetData RESET BEGIN");
         current = MagicParser.getCurrentEncounter();
-        Platform.runLater(() -> pieChart.getData().clear());
         ents = FXCollections.observableArrayList();
         abils = FXCollections.observableArrayList();
+        Platform.runLater(() -> pieChart.getData().clear());
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.resetData RESET TABLES");
         table.getItems().removeAll();
-        inited = false;
+        statsTbl.getItems().removeAll();
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.resetData END");
     }
 
-
-    boolean inited = false;
     private void updateTable() {
-        if (!inited) {
-            table.setItems(ents);
-            inited = true;
-        }
         table.setItems(ents);
-        Platform.runLater(() -> table.sort());
+        table.sort();
         table.refresh();
     }
 
     private void updateDataEntities() {
 //        ents = FXCollections.observableArrayList(current.getEnts().values());
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities UPDATE LOOP START");
         for (Entity value : current.getEnts().values()) {
             if (!ents.contains(value)) {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities ADDING ENT " + value.name);
                 ents.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
+                    if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities SETTING FILTER ENT");
                     if (current.getFilterEntity()  != null) {
                         table.getSelectionModel().select(current.getFilterEntity());
                     }
                 }
             }
         }
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities UPDATE LOOP END");
     }
 
     private void updateAbilityData() {
@@ -215,7 +236,6 @@ public class MainController {
         Entity ent = table.getSelectionModel().getSelectedItem();
         if (curFiltEnt == null || !ent.name.equalsIgnoreCase(curFiltEnt.name)) {
             curFiltEnt = ent;
-            System.out.println("Resetting Table");
             abils = FXCollections.observableArrayList(ent.abilities.values());
             Platform.runLater(() -> statsTbl.setItems(abils));
         } else {
@@ -264,8 +284,19 @@ public class MainController {
     }
 
     public void loadEncounter(ActionEvent actionEvent) {
-        reviewMode = true;
-        Main.importEnc("CombatLog_2021-04-03_23_06_57.log"); // TODO ListView Drop Down last 5 + 6th pick one via FilePicker
+        FileChooser chooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("ENCOUNTERLOG files (CombatLog*.log)", "CombatLog*.log");
+        chooser.getExtensionFilters().add(extFilter);
+        chooser.setSelectedExtensionFilter(extFilter);
+        chooser.setInitialDirectory(new File("./data/"));
+        String enc = chooser.showOpenDialog(Main.stage).getName();
+        if (!enc.isEmpty()) {
+            reviewMode = true;
+            Main.importEnc(enc);
+            Platform.runLater(() -> resetData());
+            Platform.runLater(() -> table.getItems().clear());
+            Platform.runLater(() -> statsTbl.getItems().clear());
+        }
     }
 
     public void closeEncounter(ActionEvent actionEvent) {
@@ -419,11 +450,14 @@ public class MainController {
             @Override
             protected void updateItem(Entity item, boolean empty) {
                 super.updateItem(item, empty);
+                if (current == null) return;
                 if (item != null && item != null && item.isPlayer && table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().getSelectedItem().name.equalsIgnoreCase(item.name)) {
                     setStyle("-fx-background-color:" + Configs.playerColor);
                 }
                 if (item != null && item != null && item.ownerEntity != null && !item.ownerEntity.isEmpty()) {
                     Entity owner = current.getEntity(item.ownerEntity);
+                    if (owner == null) return;
+                    if (owner.name == null) return;
                     if (owner.name.equalsIgnoreCase(Configs.defaultFilter)) {
                         setStyle("-fx-background-color:" + Configs.ownPetColor);
                     } else if (table.getSelectionModel().getSelectedIndex() != -1) {

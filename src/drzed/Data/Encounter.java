@@ -5,6 +5,8 @@ import drzed.Data.subtype.SkillTypes;
 
 import java.util.LinkedHashMap;
 
+import static drzed.Main.DEBUG_ALL_STEPS_MODE;
+
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Encounter {
     public long time = 0;
@@ -15,7 +17,11 @@ public class Encounter {
 
     private Entity filterEntity;
 
-    public Encounter() {}
+    public Encounter() {
+        allEntities = new LinkedHashMap<>();
+        entityDeaths = new LinkedHashMap<>();
+        noDupedEntities = new LinkedHashMap<>();
+    }
 
     public Encounter(long StartTime) {
         time = StartTime;
@@ -32,37 +38,54 @@ public class Encounter {
     }
 
     public void updateEntity(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String flag, double magnitude, double baseMagnitude) {
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity BEGIN");
         Entity owner = getOrAddEntity(ownerName, ownerID, t);
         Entity pet = getOrAddEntity(petName, petID, t);
         Entity target = getOrAddEntity(targetName, targetID, t);
         String tp = SkillTypes.getType(abilityName, abilityID, magnitude);
-
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ENTITIES SET");
         if (tp.equals("DMG")) {
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity DMG");
             if (target != null)
                 addDamageToEntity(target, owner, magnitude);
             if (pet != null) {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity PET");
                 String enid = pet.internalName;
                 if (enid.startsWith("Spell_") || enid.contains("Token")) {
+                    if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity SPELL/TOKEN");
                     SkillTypes.getType(petName, enid, magnitude);
                     updateAbility(pet, abilityID, magnitude, baseMagnitude); //Now Pets are listed in both so you can see their DPS
+
+                    if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDED AS ABILITY");
                     if (owner != null) {//                                     compared to other entities, and damage taken
+                        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDING PET TO OWNER");
                         addPetToEntity(owner, pet);
                         updateAbility(owner, enid, magnitude, baseMagnitude);
+                        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDED TO OWNER");
                     }
                 }
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity PET DONE");
             } else {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity UPDATE ABILITY");
                 if (owner != null)
                     updateAbility(owner, abilityID, magnitude, baseMagnitude);
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity UPDATED");
             }
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END DMG");
         }
         if (tp.equals("HEAL")) {
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity HEAL");
             if (owner != null)
                 addHealingToEntity(owner, abilityName, abilityID, magnitude, baseMagnitude);
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END HEAL");
         }
-        if (!flag.trim().isEmpty() && flag.trim().equalsIgnoreCase("kill")) {
+        if (!flag.trim().isEmpty() && flag.trim().contains("Kill")) {
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity KILL");
             if (target != null)
                 killEntity(target, t);
+            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END KILL");
         }
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END");
     }
 
     private void updateAbility(Entity e, String abilityID, double damage, double baseMag) {
@@ -86,7 +109,7 @@ public class Encounter {
         entityDeaths.replace(e.internalName, entityDeaths.get(e.internalName) + 1);
     }
 
-    private Entity getOrAddEntity(String nm, String id, long t) {
+    public Entity getOrAddEntity(String nm, String id, long t) {
         String enid = Entity.getID(id);
         if (enid.isEmpty()) {
             return null;

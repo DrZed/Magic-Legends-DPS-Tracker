@@ -20,6 +20,8 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#openMini" text="Open Mini" />
                   <MenuItem mnemonicParsing="false" onAction="#onFile" text="File.." />
+                  <MenuItem mnemonicParsing="false" onAction="#loadEncounter" text="Open Past Encounter" />
+                  <MenuItem mnemonicParsing="false" onAction="#closeEncounter" text="Close Encounter" />
             </items>
           </Menu>
         </menus>

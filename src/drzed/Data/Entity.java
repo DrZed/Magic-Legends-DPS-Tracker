@@ -17,7 +17,7 @@ public class Entity {
     public long firstSeen;
     public long lastSeen;
     public long deathTime;
-    public long deaths;
+    public int deaths;
     public String internalName;
     public long IDNum;
     public List<String> petIds;
@@ -72,7 +72,7 @@ public class Entity {
 //Pn.E19zs41=[ name=Mindlash ]
 //Pn.B6i4z31=[ name=Mindlash ]
 //Pn.67gyc51=[ name=Mindlash ]
-    private String fixMindlash(String abilityID) {
+    private static String fixMindlash(String abilityID) {
         if (abilityID.equalsIgnoreCase("Pn.Amuy251") ||
                 abilityID.equalsIgnoreCase("Pn.E19zs41") ||
                 abilityID.equalsIgnoreCase("Pn.B6i4z31") ||
@@ -142,6 +142,9 @@ public class Entity {
     //P[31719@618666 Keldon@DeathDemon18] //Arc Alt great for testing id permutations
     public static String getID(String id) {
         if (id.equalsIgnoreCase("*") || id.isEmpty()) return "";
+        if (!id.contains("]")) {
+            return id;
+        }
         String trim = id.replaceAll("\\w\\[|]", "").trim();
         if (id.contains("@")) {
             String[] tmp = trim.split("@");
