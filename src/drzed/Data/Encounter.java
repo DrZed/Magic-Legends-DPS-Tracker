@@ -42,14 +42,13 @@ public class Encounter {
                 addDamageToEntity(target, owner, magnitude);
             if (pet != null) {
                 String enid = pet.internalName;
-                if (enid.startsWith("Spell_")) {
+                if (enid.startsWith("Spell_") || enid.contains("Token")) {
                     SkillTypes.getType(petName, enid, magnitude);
-                    if (owner != null)
-                        updateAbility(owner, enid, magnitude, baseMagnitude);
-                } else {
-                    updateAbility(pet, abilityID, magnitude, baseMagnitude);
-                    if (owner != null)
+                    updateAbility(pet, abilityID, magnitude, baseMagnitude); //Now Pets are listed in both so you can see their DPS
+                    if (owner != null) {//                                     compared to other entities, and damage taken
                         addPetToEntity(owner, pet);
+                        updateAbility(owner, enid, magnitude, baseMagnitude);
+                    }
                 }
             } else {
                 if (owner != null)

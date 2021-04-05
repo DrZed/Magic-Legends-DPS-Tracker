@@ -14,7 +14,7 @@
 
 <AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.MainController">
    <children>
-      <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <MenuBar layoutY="2.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu fx:id="menuD" mnemonicParsing="false" text="File">
             <items>
@@ -37,22 +37,23 @@
       <TableView fx:id="table" layoutY="27.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="355.0" prefWidth="750.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="530.0" AnchorPane.topAnchor="27.0">
         <columns>
           <TableColumn fx:id="nameCol" prefWidth="130.0" text="Name" />
-          <TableColumn fx:id="damageCol" prefWidth="89.0" text="Damage" />
-            <TableColumn fx:id="dpsCol" prefWidth="87.0" text="DPS" />
-            <TableColumn fx:id="healCol" prefWidth="91.0" text="Heal" />
-            <TableColumn fx:id="hpscol" text="HPS" />
-            <TableColumn fx:id="takenCol" text="Taken" />
-            <TableColumn fx:id="durationCol" prefWidth="81.0" text="Duration" />
-            <TableColumn fx:id="hitsCol" prefWidth="56.0" text="Hits" />
-            <TableColumn fx:id="deathCol" prefWidth="45.0" text="Deaths" />
+          <TableColumn fx:id="damageCol" prefWidth="89.0" sortType="DESCENDING" text="Damage" />
+            <TableColumn fx:id="dpsCol" prefWidth="87.0" sortType="DESCENDING" text="DPS" />
+            <TableColumn fx:id="healCol" prefWidth="91.0" sortType="DESCENDING" text="Heal" />
+            <TableColumn fx:id="hpscol" sortType="DESCENDING" text="HPS" />
+            <TableColumn fx:id="takenCol" sortType="DESCENDING" text="Taken" />
+            <TableColumn fx:id="durationCol" prefWidth="81.0" sortType="DESCENDING" text="Duration" />
+            <TableColumn fx:id="hitsCol" prefWidth="56.0" sortType="DESCENDING" text="Hits" />
+            <TableColumn fx:id="deathCol" prefWidth="55.0" sortType="DESCENDING" text="Deaths" />
         </columns>
       </TableView>
       <TableView fx:id="statsTbl" layoutX="761.0" layoutY="27.0" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="355.0" prefWidth="519.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="338.0" AnchorPane.leftAnchor="761.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
         <columns>
-          <TableColumn fx:id="abilityCol" prefWidth="225.0" text="Ability" />
-            <TableColumn fx:id="damageCol2" prefWidth="133.0" text="Damage" />
-            <TableColumn fx:id="dpsCol2" prefWidth="96.0" text="DPH" />
-            <TableColumn fx:id="hitsCol2" prefWidth="62.0" text="Hits" />
+          <TableColumn fx:id="abilityCol" prefWidth="188.0" text="Ability" />
+            <TableColumn fx:id="damageCol2" prefWidth="120.0" sortType="DESCENDING" text="Damage" />
+            <TableColumn fx:id="dpsCol2" prefWidth="81.0" sortType="DESCENDING" text="DPH" />
+            <TableColumn fx:id="hitsCol2" minWidth="0.0" prefWidth="64.0" sortType="DESCENDING" text="Hits" />
+            <TableColumn fx:id="abilityShareCol" prefWidth="61.0" sortType="DESCENDING" text="\%" />
         </columns>
       </TableView>
    </children>

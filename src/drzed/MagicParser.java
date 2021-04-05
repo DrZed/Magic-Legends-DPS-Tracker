@@ -28,13 +28,12 @@ public class MagicParser {
     public static void ParseFile() throws IOException {
         String line;
         if (tryAndSetNewFile()) {
-            if ((line = in.readLine()) != null) {
-                polls = 0;
-                inEncounter = true;
-                parseLine(line);
-            } else {
-                polls++;
-            }
+            polls = 0;
+            inEncounter = true;
+            for (int i = 0; i < Configs.linesPerPoll; i++)
+                if ((line = in.readLine()) != null)
+                    parseLine(line);
+            polls++;
             if (polls >= (Configs.endEncounterTimer / Configs.guiPollRate) && inEncounter) endEncounter();
         }
     }

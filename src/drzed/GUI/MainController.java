@@ -75,6 +75,8 @@ public class MainController {
     @FXML
     public TableColumn<Ability, Number> hitsCol2 = new TableColumn<>("Hits");
     @FXML
+    public TableColumn<Ability, Number> abilityShareCol = new TableColumn<>("%");
+    @FXML
     public Menu menuD;
 
     public static ObservableList<Entity> ents = FXCollections.observableArrayList();
@@ -88,7 +90,7 @@ public class MainController {
         statsTbl.setEditable(false);
 
         table.getColumns().addAll(nameCol, damageCol, dpsCol, healCol, hpscol, takenCol, deathCol, durationCol, hitsCol);
-        statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2);
+        statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2, abilityShareCol);
         table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         statsTbl.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
@@ -186,9 +188,8 @@ public class MainController {
             table.setItems(ents);
             inited = true;
         }
-//        System.out.println("Table has: " + ents.size() + " Data Has: " + current.getEnts());
         table.setItems(ents);
-        table.sort();
+        Platform.runLater(() -> table.sort());
         table.refresh();
     }
 
@@ -207,6 +208,7 @@ public class MainController {
     }
 
     private void updateAbilityData() {
+        if (table.getSelectionModel().getSelectedItem() == null) return;
         Entity ent = table.getSelectionModel().getSelectedItem();
         if (curFiltEnt == null || !ent.name.equalsIgnoreCase(curFiltEnt.name)) {
             curFiltEnt = ent;
@@ -214,9 +216,9 @@ public class MainController {
             abils = FXCollections.observableArrayList(ent.abilities.values());
             Platform.runLater(() -> statsTbl.setItems(abils));
         } else {
-            for (Ability ability : FXCollections.observableArrayList(ent.abilities.values())) {
+            for (Ability ability : ent.abilities.values()) {
                 if (!statsTbl.getItems().contains(ability)) {
-                    Platform.runLater(() -> statsTbl.getItems().add(ability));
+                    statsTbl.getItems().add(ability);
                 }
             }
         }
@@ -331,6 +333,7 @@ public class MainController {
         abilityCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().name));
         damageCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDamage()))));
         dpsCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDPH()))));
+        abilityShareCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDamage() / getSelDmg())) * 100D));
         hitsCol2.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
         /* SET DISPLAY FACTORY SO NO NUMBERS ARE FORMATTED IN SCIENTIFIC NOTATION */
@@ -390,6 +393,13 @@ public class MainController {
                 if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
             }
         });
+        abilityShareCol.setCellFactory(tc -> new TableCell<Ability, Number>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()) + "%");
+            }
+        });
 
         /* SET ROW FACTORY TO COLORIZE ROWS WITH OWNERS (PETS) */
         table.setRowFactory(tv -> new TableRow<Entity>() {
@@ -412,5 +422,12 @@ public class MainController {
                 }
             }
         });
+    }
+
+    private double getSelDmg() {
+        if (table.getSelectionModel().getSelectedItem() != null) {
+            return table.getSelectionModel().getSelectedItem().damageDealt;
+        }
+        return 1;
     }
 }

@@ -31,6 +31,8 @@ public class Configs {
     public static String playerColor = "#004444";
     @Config.comment("This blocks certain entities as being listed in Entity List as they're dummy entities")
     public static List<String> bannedEntityIDs = new ArrayList<>();
+    public static int linesPerPoll = 20;
+
     static {
         bannedEntityIDs.add("Modifier_Enemy_Augmented_Red_Enraged_Hazard");
         bannedEntityIDs.add("Dom_Shiv_Goblin_Minion_Goblinbombthrower_Bombhazard");

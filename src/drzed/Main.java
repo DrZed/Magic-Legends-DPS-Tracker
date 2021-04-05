@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 public class Main extends Application {
-    public static final String TITLE = "Magic Parser v1.8";
+    public static final String TITLE = "Magic Parser v1.9";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
