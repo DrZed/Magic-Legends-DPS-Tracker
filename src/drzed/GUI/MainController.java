@@ -34,6 +34,8 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import static drzed.Main.DEBUG_ALL_STEPS_MODE;
 
@@ -82,6 +84,7 @@ public class MainController {
     @FXML
     public Menu menuD;
 
+    static NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
     public static ObservableList<Entity> ents = FXCollections.observableArrayList();
     public static ObservableList<Ability> abils = FXCollections.observableArrayList();
     private static ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
@@ -91,7 +94,7 @@ public class MainController {
     public MainController() {
         table.setEditable(false);
         statsTbl.setEditable(false);
-
+        format.setMaximumFractionDigits(1);
         table.getColumns().addAll(nameCol, damageCol, dpsCol, healCol, hpscol, takenCol, deathCol, durationCol, hitsCol);
         statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2, abilityShareCol);
         table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -132,18 +135,14 @@ public class MainController {
 
     private static Encounter current;
     private static boolean reviewMode;
-    private static boolean newData;
     public void update() {
         try {
             if (!reviewMode) {
                 if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update CALL PARSE FILE");
-                newData = MagicParser.ParseFile();
+                    MagicParser.ParseFile();
                 if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update POST FILE");
             }
-//            Platform.runLater(() -> labl.setText("Main.TITLE"));
         } catch (IOException e) { e.printStackTrace(); }
-
-//        if (!newData) return;
 
         if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
             if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update RESET DATA");
@@ -156,7 +155,7 @@ public class MainController {
             updateDataEntities();
             if (ents.size() > 0) {
                 if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE TABLE");
-                Platform.runLater(() -> updateTable());
+                updateTable();
             }
             if (table.getSelectionModel().getSelectedIndex() != -1) {
                 if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update UPDATE ABILITY DATA");
@@ -168,7 +167,6 @@ public class MainController {
         }
 
         if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.update END");
-        newData = false;
     }
 
     private void updateLineChart() {
@@ -221,7 +219,7 @@ public class MainController {
                 if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities ADDING ENT " + value.name);
                 ents.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
-                    if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities SETTING FILTER ENT");
+                    if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities SETTING FILTER ENT TO :" + value.name);
                     if (current.getFilterEntity()  != null) {
                         table.getSelectionModel().select(current.getFilterEntity());
                     }
@@ -233,6 +231,7 @@ public class MainController {
 
     private void updateAbilityData() {
         if (table.getSelectionModel().getSelectedItem() == null) return;
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateAbilityData BEGIN");
         Entity ent = table.getSelectionModel().getSelectedItem();
         if (curFiltEnt == null || !ent.name.equalsIgnoreCase(curFiltEnt.name)) {
             curFiltEnt = ent;
@@ -240,16 +239,21 @@ public class MainController {
             Platform.runLater(() -> statsTbl.setItems(abils));
         } else {
             for (Ability ability : ent.abilities.values()) {
+                if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateAbilityData ADDING ABILITY : " + ability.name);
                 if (!statsTbl.getItems().contains(ability)) {
                     statsTbl.getItems().add(ability);
                 }
             }
         }
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateAbilityData SORTING");
         statsTbl.sort();
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateAbilityData REFRESHING DATA");
         statsTbl.refresh();
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateAbilityData END");
     }
 
     private void updatePie() {
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updatePie BEGIN");
         if (statsTbl.getItems().size() > 0) {
             for (Ability ab : statsTbl.getItems()) {
                 Platform.runLater(() -> addData(ab.name, ab.Damage));
@@ -257,6 +261,7 @@ public class MainController {
         } else {
             Platform.runLater(() -> pieChart.getData().clear());
         }
+        if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updatePie END");
     }
 
     //adds new Data to the list
@@ -268,12 +273,9 @@ public class MainController {
     }
 
     //updates existing Data-Object if name matches
-    public void addData(String name, double value)
-    {
-        for(PieChart.Data d : pieChart.getData())
-        {
-            if(d.getName().equals(name))
-            {
+    public void addData(String name, double value) {
+        for(PieChart.Data d : pieChart.getData()) {
+            if(d.getName().equals(name)) {
                 d.setPieValue(value);
                 pieChart.setLabelsVisible(false);
                 pieChart.setLabelLineLength(0);
@@ -365,19 +367,19 @@ public class MainController {
 
         /* SET CELL VALUE FACTORY TO SPECIFIED DATA TYPES */
         nameCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().name));
-        damageCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().damageDealt))));
-        dpsCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDPS()))));
-        healCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().healingTaken))));
-        hpscol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getHPS()))));
-        takenCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().damageTaken))));
+        damageCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().damageDealt)));
+        dpsCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getDPS())));
+        healCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().healingTaken)));
+        hpscol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getHPS())));
+        takenCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().damageTaken)));
         deathCol.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().deaths));
-        durationCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getLifetime()))));
+        durationCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getLifetime())));
         hitsCol.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
         abilityCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().name));
-        damageCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDamage()))));
-        dpsCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDPH()))));
-        abilityShareCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(Double.parseDouble(FORMAT.format(cellData.getValue().getDamage() / getSelDmg())) * 100D));
+        damageCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getDamage())));
+        dpsCol2.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getDPH())));
+        abilityShareCol.setCellValueFactory(cellData -> new SimpleDoubleProperty(getFormattedDoubleLocalized(cellData.getValue().getDamage() / getSelDmg()) * 100D));
         hitsCol2.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
         /* SET DISPLAY FACTORY SO NO NUMBERS ARE FORMATTED IN SCIENTIFIC NOTATION */
@@ -385,63 +387,63 @@ public class MainController {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         dpsCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         healCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         hpscol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         takenCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         durationCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         damageCol2.setCellFactory(tc -> new TableCell<Ability, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         dpsCol2.setCellFactory(tc -> new TableCell<Ability, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()));
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())));
             }
         });
         abilityShareCol.setCellFactory(tc -> new TableCell<Ability, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(String.format("%1$,.1f", value.doubleValue()) + "%");
+                if (!empty) setText(String.format("%1$,.1f", getFormattedDoubleLocalized(value.doubleValue())) + "%");
             }
         });
 
@@ -469,6 +471,16 @@ public class MainController {
                 }
             }
         });
+    }
+    
+    private static Double getFormattedDoubleLocalized(double d) {
+        String localizedString = format.format(d);
+        try {
+            return format.parse(localizedString).doubleValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Double.parseDouble(localizedString.replaceAll(",", "."));
+        }
     }
 
     private double getSelDmg() {

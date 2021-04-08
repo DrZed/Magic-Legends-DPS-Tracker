@@ -23,13 +23,13 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 public class Main extends Application {
-    public static final String TITLE = "Magic Parser v1.10";
+    public static final String TITLE = "Magic Parser v1.11";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
     private static HxCConfig config;
     public static Main instance;
-    public static final boolean DEBUG_ALL_STEPS_MODE = false;
+    public static boolean DEBUG_ALL_STEPS_MODE = false;
 
     /*
     Due to a user on reddit asking I use default install directory, here's the registry key
@@ -65,7 +65,13 @@ public class Main extends Application {
         instance = this;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
+        if (args.length == 1) {
+            String[] arg = args[0].split("=");
+            if (arg[0].equalsIgnoreCase("-debug")) {
+                DEBUG_ALL_STEPS_MODE = Boolean.parseBoolean(arg[1]);
+            }
+        }
         registerHandlers();
         registerConfigs();
         initialize();
