@@ -34,6 +34,7 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -88,20 +89,24 @@ public class MainController {
     public static ObservableList<Entity> ents = FXCollections.observableArrayList();
     public static ObservableList<Ability> abils = FXCollections.observableArrayList();
     private static ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-    private static final DecimalFormat FORMAT = new DecimalFormat("#.##");
+    private static final DecimalFormat FORMAT = new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
     private static Entity curFiltEnt;
 
     public MainController() {
         table.setEditable(false);
         statsTbl.setEditable(false);
         format.setMaximumFractionDigits(1);
+        damageCol.setSortType(TableColumn.SortType.DESCENDING);
+        damageCol2.setSortType(TableColumn.SortType.DESCENDING);
         table.getColumns().addAll(nameCol, damageCol, dpsCol, healCol, hpscol, takenCol, deathCol, durationCol, hitsCol);
         statsTbl.getColumns().addAll(abilityCol, damageCol2, dpsCol2, hitsCol2, abilityShareCol);
         table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         statsTbl.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         table.setItems(ents);
+        table.getSortOrder().add(damageCol);
         statsTbl.setItems(abils);
+        statsTbl.getSortOrder().add(damageCol2);
 
         pieChart.setLabelsVisible(false);
         pieChart.setStartAngle(180);
@@ -474,13 +479,20 @@ public class MainController {
     }
     
     private static Double getFormattedDoubleLocalized(double d) {
-        String localizedString = format.format(d);
-        try {
-            return format.parse(localizedString).doubleValue();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Double.parseDouble(localizedString.replaceAll(",", "."));
-        }
+        String localizedString = FORMAT.format(d);
+        return Double.parseDouble(localizedString);
+//        if (localizedString.isEmpty()) {
+//            return d;
+//        }
+//        System.out.println(d);
+//        try {
+//            return format.parse(localizedString).doubleValue();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            int count = localizedString.length() - localizedString.replace(".", "").length();
+//            int count2 = localizedString.length() - localizedString.replace(",", "").length();
+//            return Double.parseDouble(count == 0 && count2 > 1 ? replaceLast(localizedString, ",", ".") : localizedString);
+//        }
     }
 
     private double getSelDmg() {
@@ -488,5 +500,9 @@ public class MainController {
             return table.getSelectionModel().getSelectedItem().damageDealt;
         }
         return 1;
+    }
+
+    public static String replaceLast(String text, String regex, String replacement) {
+        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
     }
 }
