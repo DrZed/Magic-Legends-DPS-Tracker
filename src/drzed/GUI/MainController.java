@@ -33,6 +33,7 @@ import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -323,6 +324,11 @@ public class MainController {
         Configs.combatLogFolder = Main.Directory.getAbsolutePath().replaceAll("\\\\", "/");
         Main.resaveConfig();
     }
+/*
+    public static String fixDisplayStr(String str) {
+        System.out.println(str);
+        return new String(str.getBytes(), Charset.forName("UTF-8"));
+    }*/
 
     public void onTheme(ActionEvent actionEvent) {
 
@@ -390,6 +396,13 @@ public class MainController {
         hitsCol2.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().hits));
 
         /* SET DISPLAY FACTORY SO NO NUMBERS ARE FORMATTED IN SCIENTIFIC NOTATION */
+     /*   nameCol.setCellFactory(tc -> new TableCell<Entity, String>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (!empty) setText(fixDisplayStr(value));
+            } //I give up trying to forcibly fix Tsidé's name string encoding é in java sucks nuts
+        });*/
         damageCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
             @Override
             protected void updateItem(Number value, boolean empty) {

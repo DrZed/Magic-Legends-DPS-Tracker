@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 
 public class Main extends Application {
     public static final String TITLE = "Magic Parser v1.11.1";
