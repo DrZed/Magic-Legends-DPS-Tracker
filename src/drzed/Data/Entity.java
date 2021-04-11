@@ -4,6 +4,8 @@ import drzed.Data.subtype.SkillTypes;
 
 import java.util.*;
 
+import static drzed.Data.subtype.SkillTypes.fixAbils;
+
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Entity {
     public String name;
@@ -53,7 +55,7 @@ public class Entity {
     }
 
     public void updateAbility(String abilityID, double damage, double base) {
-        abilityID = fixMindlash(abilityID);
+        abilityID = fixAbils(abilityID);
         if (!abilities.containsKey(abilityID)) {
             abilities.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
         }
@@ -66,20 +68,6 @@ public class Entity {
         if (DOTT - lDOTT > 30000) {
             updateDOT();
         }
-    }
-
-//Pn.Amuy251=[ name=Mindlash ]
-//Pn.E19zs41=[ name=Mindlash ]
-//Pn.B6i4z31=[ name=Mindlash ]
-//Pn.67gyc51=[ name=Mindlash ]
-    private static String fixMindlash(String abilityID) {
-        if (abilityID.equalsIgnoreCase("Pn.Amuy251") ||
-                abilityID.equalsIgnoreCase("Pn.E19zs41") ||
-                abilityID.equalsIgnoreCase("Pn.B6i4z31") ||
-                abilityID.equalsIgnoreCase("Pn.67gyc51")) { //Because go fk yourself multiple ids
-            return "Pn.Amuy251";
-        }
-        return abilityID;
     }
 
     private void updateDOT() {

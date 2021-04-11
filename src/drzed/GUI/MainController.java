@@ -225,8 +225,10 @@ public class MainController {
                 ents.add(value);
                 if (value.name.equalsIgnoreCase(Configs.defaultFilter)) {
                     if (DEBUG_ALL_STEPS_MODE) System.out.println("MainController.updateDataEntities SETTING FILTER ENT TO :" + value.name);
-                    if (current.getFilterEntity()  != null) {
-                        table.getSelectionModel().select(current.getFilterEntity());
+                    if (current.getFilterEntity()  != null && table.getSelectionModel() != null) {
+                        try {
+                            table.getSelectionModel().select(current.getFilterEntity());
+                        } catch (Exception ignored) {}
                     }
                 }
             }
@@ -479,7 +481,9 @@ public class MainController {
     }
     
     private static Double getFormattedDoubleLocalized(double d) {
+        if (Double.isInfinite(d) || Double.isNaN(d)) {return 0.0D;}
         String localizedString = FORMAT.format(d);
+
         return Double.parseDouble(localizedString);
 //        if (localizedString.isEmpty()) {
 //            return d;
