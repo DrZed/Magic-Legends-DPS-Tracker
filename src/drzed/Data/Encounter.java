@@ -111,10 +111,12 @@ public class Encounter {
 
     public Entity getOrAddEntity(String nm, String id, long t) {
         String enid = Entity.getID(id);
-        if (enid.isEmpty()) {
+        if (enid.isEmpty() || enid.equalsIgnoreCase("Ability_Ravnica_Assassin_Passive_Ultimate") ||
+                enid.equalsIgnoreCase("Ability_Ravnica_Assassin_Primary_Ultimate") || enid.startsWith("Spell_") ||
+                enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
             return null;
         }
-        if (!entityDeaths.containsKey(enid) || enid.startsWith("Spell_") || enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
+        if (!entityDeaths.containsKey(enid)) {
             entityDeaths.put(enid, 0L);
         }
         Entity e = Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
