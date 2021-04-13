@@ -1,133 +1,121 @@
 package drzed.Data;
 
-import drzed.Data.subtype.SkillTypes;
-
-import java.util.*;
-
-import static drzed.Data.subtype.SkillTypes.fixAbils;
+import drzed.Data.subtype.AbilityTypes;
+import drzed.MagicParser;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Entity {
-    public String name;
-    public String ID;
-    public HashMap<String, Ability> abilities;
-    public HashMap<String, Ability> healingSources;
-    public long hits;
-    public double healingTaken;
-    public double damageTaken;
-    public double damageDealt;
-    public long firstSeen;
-    public long lastSeen;
-    public long deathTime;
-    public int deaths;
-    public String internalName;
-    public long IDNum;
-    public List<String> petIds;
-    public String ownerEntity;
-    public boolean isPlayer;
-    public LinkedList<Integer> dpsOT;
-    public long DOTT;
-    public long lDOTT;
-    public double DOT;
+    public String name = "";
+    public String fullID = "";
+    public String internalName = "";
+    public String ownerEntityID = "";
+
+    public boolean isPlayer = false;
+
+    public int hits = 0;
+    public int healingTaken = 0;
+    public int damageTaken = 0;
+    public int damageDealt = 0;
+    public int deaths = 0;
+    public int lifetime = 0;
+    public int shieldTaken = 0;
+    public int kills = 0;
+
+    private long firstSeen = 0;
+    public ObservableList<Ability> abilityList;
 
     public Entity() {}
 
     public Entity(String EntityName, String Identifier, long first) {
         name = EntityName;
-        ID = Identifier;
+        fullID = Identifier;
         firstSeen = first;
         isPlayer = Identifier.startsWith("P");
-        if (Identifier.contains("Token")) {
-            name += " Token";
-        }
-        abilities = new HashMap<>();
-        petIds = new ArrayList<>();
-        healingSources = new HashMap<>();
-        dpsOT = new LinkedList<>();
+        abilityList = FXCollections.observableArrayList();
         internalName = getID(Identifier);
-        IDNum = getIDNumber(Identifier);
-        lDOTT = first;
     }
 
     public void updateSeen(long t) {
-        lastSeen = t;
-        DOTT = t;
+        lifetime = Math.round((t - firstSeen) / 1000f);
     }
 
-    public void updateAbility(String abilityID, double damage, double base) {
-        abilityID = fixAbils(abilityID);
-        if (!abilities.containsKey(abilityID)) {
-            abilities.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
+    public void updateDamageTaken(double damage, boolean shield) {
+        if (damage < 0 && !shield) {
+            System.out.println("DAMAGE NEGATIVE AND NOT SHIELD");
         }
-        abilities.get(abilityID).updateDamage(damage);
-        abilities.get(abilityID).updateBaseDamage(base);
-
-        hits++;
-        damageDealt += damage;
-        DOT += damage;
-        if (DOTT - lDOTT > 30000) {
-            updateDOT();
+        if (shield) {
+            shieldTaken += damage < 0 ? -1 * damage : damage;
+        } else {
+            damageTaken += damage;
         }
     }
 
-    private void updateDOT() {
-        long dt = DOTT - lDOTT;
-        dpsOT.add(Math.toIntExact(Math.round((DOT / dt) * 1000D)));
-        lDOTT = DOTT;
-        DOT = 0;
+    public double getEffectiveness(double dm) {
+        return dm / damageDealt * 100;
     }
 
-    public void healEntity(String abilityID, double healing, double base) {
-        if (healing < 0) {
-            healing *= -1;
-        }
-        if (!healingSources.containsKey(abilityID)) {
-            healingSources.put(abilityID, new Ability(SkillTypes.getSkillName(abilityID), abilityID));
-        }
-        healingSources.get(abilityID).updateDamage(healing);
-        healingSources.get(abilityID).updateBaseDamage(base);
-        healingTaken += healing;
-    }
-
-    public void updateDamageTaken(double damage) {
-        damageTaken += damage;
-    }
-
-    public void addPetID(String petd) {
-        if (!petIds.contains(petd)) {
-            petIds.add(petd);
-        }
-    }
-
-    public void kill(long last) {
-        deathTime = last;
+    public void kill() {
         deaths++;
     }
 
     public Ability getBestAbility() {
-        LinkedList<Ability> abs = new LinkedList<>(abilities.values());
-        abs.sort(Comparator.comparingDouble(Ability::getDamage));
-        return abs.getLast();
+        sortAbils();
+        return abilityList.get(abilityList.size() - 1);
     }
 
-    public double getLifetime() {
-        return Math.max(1.0D, (lastSeen - firstSeen) / 1000D);
+    private void sortAbils() {
+//        abilityList.sort(Comparator.comparingDouble(Ability::getTotalDamage));
+        abilityList.sort((o1, o2) -> -(o1.totalDamage - o2.totalDamage));
+    }
+
+
+
+    public void updateAbility(String abilityName, String abilityID, double damage, double base) {
+        updateAbility(abilityName, abilityID, damage, base, 0);
+    }
+
+    public void updateAbility(String abilityName, String abilityID, double damage, double base, double dtaken) {
+        Ability ab = null;
+        abilityID = AbilityTypes.fixAbils(abilityName, abilityID);
+
+        for (Ability ability : abilityList) {
+            if (ability.ID.equalsIgnoreCase(abilityID)) {
+                ab = ability;
+                break;
+            }
+        }
+        if (ab == null) {
+            ab = AbilityTypes.makeAbility(abilityName, abilityID, damage);
+            abilityList.add(ab);
+        }
+        ab.update(damage, base, dtaken);
+
+        if (damage > 0) {
+            hits++;
+            damageDealt += damage;
+        } else {
+            healingTaken -= damage;
+        }
+        sortAbils();
+    }
+
+    public int getLifetime() {
+        return Math.max(1, lifetime);
     }
 
     public static String getID(Entity ent) {
-        return getID(ent.ID);
+        return getID(ent.fullID);
     }
 
-    public double getDPS() {
+    public int getDPS() {
         return damageDealt / getLifetime();
     }
-    public double getHPS() {
+    public int getHPS() {
         return healingTaken / getLifetime();
     }
 
-    //C[310876 Zen_Vastwood_Forest_Hordeling_Goblin_Ranged] //Creature ID
-    //P[440730@31580857 Keldon Warlord@KeldonSlayer#31282] //Epic Account great for testing id permutations
-    //P[31719@618666 Keldon@DeathDemon18] //Arc Alt great for testing id permutations
     public static String getID(String id) {
         if (id.equalsIgnoreCase("*") || id.isEmpty()) return "";
         if (!id.contains("]")) {
@@ -138,15 +126,21 @@ public class Entity {
             String[] tmp = trim.split("@");
             return tmp[tmp.length - 1];
         }
-        String eid = trim.split(" ")[1];
-        if (eid.equalsIgnoreCase("Regionmechanic_Tolaria_Bubble_Controller") ||
-            eid.equalsIgnoreCase("Regionmechanic_Tolaria_Bubble")) {
-            return "";
-        }
-        return eid;
+        return trim.split(" ")[1];
     }
 
-    public static long getIDNumber(String id) {
-        return Long.parseLong(id.replaceAll("\\w\\[|]|@", "").trim().split(" ")[0]);
+    public void addKill() {
+        kills++;
+    }
+
+    public double getEff() {
+        if (!isPlayer) return 0;
+        long tdam = MagicParser.getCurrentEncounter().globalDamageByPlayers + MagicParser.getCurrentEncounter().globalDamageToPlayers;
+        long mdam = damageTaken + shieldTaken;
+        for (Ability ability : abilityList) {
+            mdam += ability.taken;
+            mdam += ability.totalDamage;
+        }
+        return ((double) mdam / (double) tdam) * 100;
     }
 }

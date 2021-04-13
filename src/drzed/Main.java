@@ -3,14 +3,15 @@ package drzed;
 import drzed.Data.Ability;
 import drzed.Data.Encounter;
 import drzed.Data.Entity;
-import drzed.Data.Skill;
+import drzed.Data.AbilityData;
 import drzed.Data.subtype.EncounterData;
 import drzed.Data.subtype.EntityNames;
-import drzed.Data.subtype.SkillTypes;
+import drzed.Data.subtype.AbilityTypes;
 import drzed.GUI.MainController;
 import hxckdms.hxcconfig.HxCConfig;
 import hxckdms.hxcconfig.handlers.SpecialHandlers;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,24 +21,15 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
 
+@SuppressWarnings("all")
 public class Main extends Application {
-    public static final String TITLE = "Magic Parser v1.11.1";
+    private static final String TITLE = "Magic Parser v2.0.0";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
     private static HxCConfig config;
-    public static Main instance;
-    public static boolean DEBUG_ALL_STEPS_MODE = false;
-
-    /*
-    Due to a user on reddit asking I use default install directory, here's the registry key
-    Computer\HKEY_CURRENT_USER\SOFTWARE\Cryptic\Magic: Legends
-    InstallLocation
-    A:\Games\Magic Legends_en
-     */
+    public static boolean DEBUG_MODE = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -61,22 +53,16 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public Main() {
-        super();
-        instance = this;
-    }
-
     public static void main(String[] args) {
         if (args.length == 1) {
             String[] arg = args[0].split("=");
             if (arg[0].equalsIgnoreCase("-debug")) {
-                DEBUG_ALL_STEPS_MODE = Boolean.parseBoolean(arg[1]);
+                DEBUG_MODE = Boolean.parseBoolean(arg[1]);
             }
         }
         registerHandlers();
         registerConfigs();
         initialize();
-//        EncounterData.loadEncounter("CombatLog_2021-04-05_14_08_22.log"); //TEST PASSED
         launch(args);
     }
 
@@ -86,10 +72,11 @@ public class Main extends Application {
     }
 
     private static void registerHandlers() {
+        SpecialHandlers.registerSpecialClass(ObservableList.class);
         SpecialHandlers.registerSpecialClass(Ability.class);
         SpecialHandlers.registerSpecialClass(Entity.class);
-        SpecialHandlers.registerSpecialClass(Skill.class);
-        SpecialHandlers.registerSpecialClass(SkillTypes.class);
+        SpecialHandlers.registerSpecialClass(AbilityData.class);
+        SpecialHandlers.registerSpecialClass(AbilityTypes.class);
         SpecialHandlers.registerSpecialClass(Encounter.class);
     }
 
@@ -104,13 +91,13 @@ public class Main extends Application {
         }
     }
 
-    static HxCConfig dummy2 = new HxCConfig(SkillTypes.class, "ML_Skill_Data", new File("./"), "cfg", "MLParse");
-    static HxCConfig dummy3 = new HxCConfig(EntityNames.class, "ML_Entity_Data", new File("./"), "cfg", "MLParse");
+    private static HxCConfig dummy2 = new HxCConfig(AbilityTypes.class, "ML_Skill_Data", new File("./"), "cfg", "MLParse");
+    private static HxCConfig dummy3 = new HxCConfig(EntityNames.class, "ML_Entity_Data", new File("./"), "cfg", "MLParse");
     private static void initialize() {
-        config.initConfiguration();
-        String ddir = readRegistry("HKEY_CURRENT_USER\\SOFTWARE\\Cryptic\\Magic: Legends", "InstallLocation").replaceAll("\\\\", "/");
+        config.initConfiguration(); //TODO avoid attempting this if OS != Windows
+        String ddir = getLocation().replaceAll("\\\\", "/");
         String fdir = ddir + "/Magic Legends/Live/logs/GameClient";
-        if (ddir != null && !ddir.equalsIgnoreCase("null") && !ddir.isEmpty()) {
+        if (!ddir.equalsIgnoreCase("null") && !ddir.isEmpty()) {
             Configs.combatLogFolder = fdir;
             resaveConfig();
         }
@@ -125,7 +112,7 @@ public class Main extends Application {
         }
     }
 
-    public static void export(String name) {
+    static void export(String name) {
         if (EncounterData.encounter == null) {
             System.out.println("ENCOUNTER NULL");
             return;
@@ -146,33 +133,28 @@ public class Main extends Application {
             sk.delete();
         }
         dummy3.initConfiguration();
+        EncounterData.encounter = null; //To free up memory
     }
 
-    //CombatLog_2021-04-03_23_06_57.log for example
-    public static Encounter importEnc(String name) {
-//        HxCConfig dummy = new HxCConfig(EncounterData.class, name, new File("./data/"), "log", "MLParse");
-//        dummy.initConfiguration();
-        try {
-            EncounterData.loadEncounter(name);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        MagicParser.setCurrentEncounter(EncounterData.encounter);
-        return MagicParser.getCurrentEncounter();
+    public static void importEnc(String name) {
+//        try {
+//            EncounterData.loadEncounter(name);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        MagicParser.setCurrentEncounter(EncounterData.encounter);
     }
 
 
     /**
      *
-     * @param location path in the registry
-     * @param key registry key
      * @return registry value or null if not found
      */
-    public static final String readRegistry(String location, String key){
+    private static String getLocation(){
         try {
             // Run reg query, then read output with StreamReader (internal class)
             Process process = Runtime.getRuntime().exec("reg query " +
-                    '"' + location + "\" /v " + key);
+                    '"' + "HKEY_CURRENT_USER\\SOFTWARE\\Cryptic\\Magic: Legends" + "\" /v " + "InstallLocation");
 
             InputStream is = process.getInputStream();
             StringBuilder sw = new StringBuilder();
@@ -181,8 +163,7 @@ public class Main extends Application {
                 int c;
                 while ((c = is.read()) != -1)
                     sw.append((char) c);
-            } catch (IOException e) {
-            }
+            } catch (IOException ignored) { }
 
             String output = sw.toString();
 
@@ -190,7 +171,7 @@ public class Main extends Application {
             // \n<Version information>\n\n<key>    <registry type>    <value>\r\n\r\n
             int i = output.indexOf("REG_SZ");
             if (i == -1) {
-                return null;
+                return "null";
             }
 
             sw = new StringBuilder();
@@ -219,30 +200,7 @@ public class Main extends Application {
 
             return sw.toString();
         } catch (Exception e) {
-            return null;
-        }
-    }
-
-    static class StreamReader extends Thread {
-        private InputStream is;
-        private StringWriter sw= new StringWriter();
-
-        public StreamReader(InputStream is) {
-            this.is = is;
-        }
-
-        public void run() {
-            try {
-                int c;
-                while ((c = is.read()) != -1)
-                    sw.write(c);
-            }
-            catch (IOException e) {
-            }
-        }
-
-        public String getResult() {
-            return sw.toString();
+            return "null";
         }
     }
 }

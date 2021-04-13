@@ -1,12 +1,12 @@
 package drzed.Data;
 
-public class Skill {
+public class AbilityData {
     public String skillType;
     public String skillName;
     public String skillID;
-    public Skill() {}
+    public AbilityData() {}
 
-    public Skill(String name, String id, String type) {
+    public AbilityData(String name, String id, String type) {
         skillType = type;
         skillID = id;
         skillName = name;

@@ -91,11 +91,11 @@ public class MiniController {
         String Damage = format((long) me.damageDealt);
         Ability ab = me.getBestAbility();
         String Spell = ab.name;
-        String SpellDPS = format((long) (ab.Damage / ab.hits));
-        String SpellDMG = format((long) ab.Damage);
+        String SpellDPS = format((long) (ab.totalDamage / ab.hits));
+        String SpellDMG = format((long) ab.totalDamage);
         String TimeActive = String.format("%1$,.1f", me.getLifetime()) + "s";
 
-        if (!me.name.equalsIgnoreCase(Configs.defaultFilter)) {
+        if (!me.name.equalsIgnoreCase(Configs.selfPlayerName)) {
             System.out.println("Something went horrendously wrong.");
             return "Something went horrendously wrong.";
         }

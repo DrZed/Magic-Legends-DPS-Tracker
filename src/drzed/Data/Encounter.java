@@ -1,127 +1,222 @@
 package drzed.Data;
 
 import drzed.Configs;
-import drzed.Data.subtype.SkillTypes;
+import drzed.Data.subtype.AbilityTypes;
 
-import java.util.LinkedHashMap;
-
-import static drzed.Main.DEBUG_ALL_STEPS_MODE;
+import java.util.*;
 
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Encounter {
-    public long time = 0;
-    public long duration = 0;
-    public LinkedHashMap<String, Entity> allEntities;
-    public LinkedHashMap<String, Long> entityDeaths;
-    public LinkedHashMap<String, Entity> noDupedEntities;
+    public int duration = 0;
+    public LinkedHashMap<String, Entity> entities = new LinkedHashMap<>();
 
+    public long globalDamageByPlayers, globalDamageToPlayers;
+
+    private static final List<String> bannedEntities = Arrays.asList("R0_Tol_Ow_Rq_R3_Q2_Defend_Artifact", "R0_Event_Mana_Rig_Mayhem_Falling_Crystal_Phase_Hazard",
+            "R0_Event_Mana_Rig_Mayhem_Crystal_Telegraph", "R0_Event_Mana_Rig_Mayhem_Crystal_Spawner", "R0_Event_Mana_Rig_Mayhem_Crystal");
+
+    private HashMap<String, Entity> petsOfOwners = new HashMap<>();
     private Entity filterEntity;
+    private long startTimeLong = 0;
 
     public Encounter() {
-        allEntities = new LinkedHashMap<>();
-        entityDeaths = new LinkedHashMap<>();
-        noDupedEntities = new LinkedHashMap<>();
     }
 
     public Encounter(long StartTime) {
-        time = StartTime;
-        allEntities = new LinkedHashMap<>();
-        entityDeaths = new LinkedHashMap<>();
-        noDupedEntities = new LinkedHashMap<>();
+        startTimeLong = StartTime;
     }
 
     public void end(long endTime) {
-        duration = endTime - time;
-        allEntities.forEach((a, b) -> {
-            b.kill(endTime);
-        });
+        System.out.println("ENCOUNTER HAS ENDED!");
+        checkOrphans();
+        duration = (int) Math.round((endTime - startTimeLong / 1000D));
     }
 
-    public void updateEntity(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String flag, double magnitude, double baseMagnitude) {
-        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity BEGIN");
-        Entity owner = getOrAddEntity(ownerName, ownerID, t);
-        Entity pet = getOrAddEntity(petName, petID, t);
-        Entity target = getOrAddEntity(targetName, targetID, t);
-        String tp = SkillTypes.getType(abilityName, abilityID, magnitude);
-        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ENTITIES SET");
-        if (tp.equals("DMG")) {
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity DMG");
-            if (target != null)
-                addDamageToEntity(target, owner, magnitude);
-            if (pet != null) {
-                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity PET");
-                String enid = pet.internalName;
-                if (enid.startsWith("Spell_") || enid.contains("Token")) {
-                    if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity SPELL/TOKEN");
-                    SkillTypes.getType(petName, enid, magnitude);
-                    updateAbility(pet, abilityID, magnitude, baseMagnitude); //Now Pets are listed in both so you can see their DPS
-
-                    if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDED AS ABILITY");
-                    if (owner != null) {//                                     compared to other entities, and damage taken
-                        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDING PET TO OWNER");
-                        addPetToEntity(owner, pet);
-                        updateAbility(owner, enid, magnitude, baseMagnitude);
-                        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity ADDED TO OWNER");
+    /*
+    Pet Taken
+    Pet Dealt
+    Player Dealt
+    Player Taken
+    Other Ent Taken
+    Other Ent Dealt
+     */
+    private HashMap<String, Ability> orphans = new HashMap<>();
+    public void updateEntity2(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String type, String flag, double magnitude, double baseMagnitude) {
+        if (isBannedEntity(ownerID)) {
+            if (isBannedEntity(targetID)) {
+                return;
+            } else {
+                if (targetID.startsWith("P")) {
+                    Entity player = getOrAddEntity(targetName, targetID, t);
+                    if (magnitude < 0 && !type.equalsIgnoreCase("Shield")) {
+                        player.updateAbility(abilityName, abilityID, magnitude, baseMagnitude);
+                    } else {
+                        globalDamageToPlayers += magnitude;
+                        player.updateDamageTaken(magnitude, type.equalsIgnoreCase("Shield"));
+                    }
+                } else {
+                    if (targetID.contains("Token")) {
+                        if (petsOfOwners.containsKey(targetID) && magnitude > 0) {
+                            petsOfOwners.get(targetID).updateDamageTaken(magnitude, type.equalsIgnoreCase("Shield"));
+                            globalDamageToPlayers += magnitude;
+                        } else {
+                            if (orphans.containsKey(targetID)) {
+                                orphans.get(targetID).update(0, 0, magnitude);
+                            } else {
+                                orphans.put(targetID, AbilityTypes.makeAbility(targetName, Entity.getID(targetID), magnitude));
+                            }
+                        }
                     }
                 }
-                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity PET DONE");
-            } else {
-                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity UPDATE ABILITY");
-                if (owner != null)
-                    updateAbility(owner, abilityID, magnitude, baseMagnitude);
-                if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity UPDATED");
             }
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END DMG");
+            return;
         }
-        if (tp.equals("HEAL")) {
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity HEAL");
-            if (owner != null)
-                addHealingToEntity(owner, abilityName, abilityID, magnitude, baseMagnitude);
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END HEAL");
+        if (ownerID.startsWith("P")) {
+            //Player Ent Damage Dealt
+            Entity player = getOrAddEntity(ownerName, ownerID, t);
+            if (!targetName.isEmpty()) {
+                if (isBannedEntity(targetID) || targetID.contains("Token")) {
+                    return; //Don't add damage to banned entities (Spells/Non-Enemy objects)
+                }
+                Entity target = getOrAddEntity(targetName, targetID, t);
+                if (!petName.isEmpty()) {
+                    //Pet Ability Dealt
+                    String pnid = Entity.getID(petID);
+                    AbilityTypes.getType(petName, pnid, magnitude);
+                    petsOfOwners.put(petID, player);
+                    player.updateAbility(petName, pnid, magnitude, baseMagnitude);
+                    //In this case pet is the ability, abilityName/abilityID would be the pets ability
+                } else {
+                    AbilityTypes.getType(abilityName, abilityID, magnitude);
+                    player.updateAbility(abilityName, abilityID, magnitude, baseMagnitude);
+                    //No Pet Found so add damage as from ability as usual
+                }
+                //Other Ent Taken
+                if (magnitude < 0 && !type.equalsIgnoreCase("Shield")) {
+                    target.updateAbility(player.name, player.internalName, magnitude, baseMagnitude);
+                } else {
+                    target.updateDamageTaken(magnitude, type.equalsIgnoreCase("Shield"));
+                    globalDamageByPlayers += magnitude;
+                }
+                //Add damage to target entity
+                if (flag.contains("Kill")) {
+                    player.addKill();
+                    target.kill();
+                }
+            }
+        } else {
+            //Other Ent Dealt
+            Entity otherEnt = getOrAddEntity(ownerName, ownerID, t);
+            if (!targetName.isEmpty()) {
+                String tnid = Entity.getID(targetID);
+                //Player Ent Taken
+                if (targetID.startsWith("P")) {
+                    Entity player = getOrAddEntity(targetName, targetID, t);
+                    if (magnitude < 0 && !type.equalsIgnoreCase("Shield")) {
+                        System.out.println("DAMAGE IS NEGATIVE!");
+                        System.out.println("===============================");
+                        System.out.println("Source " + otherEnt.name);
+                        System.out.println("Target " + player.name);
+                        System.out.println("Amount " + magnitude);
+                        System.out.println("===============================");
+                    }
+                    player.updateDamageTaken(magnitude, type.equalsIgnoreCase("Shield"));
+                    globalDamageToPlayers += magnitude;
+                    otherEnt.updateAbility(abilityName, abilityID, magnitude, baseMagnitude);
+                    if (flag.contains("Kill")) {
+                        otherEnt.addKill();
+                        player.kill(); //Yes this happens
+                    }
+                    return;
+                }
+                //Pet Ability Taken
+                if (petsOfOwners.containsKey(targetID)) {
+                    petsOfOwners.get(targetID).updateAbility(targetName, tnid, 0, 0, magnitude);
+                    globalDamageToPlayers += magnitude;
+                    if (flag.contains("Kill")) {
+                        otherEnt.addKill();
+//                        target.kill(); //Maybe add this at some point if needed
+                    }
+                    return;
+                    //If target is pet, add damage taken to pet "ability"
+                }
+                if (isBannedEntity(targetID)) {
+                    return; //Don't add damage to banned entities (Spells/Non-Enemy objects)
+                    //Some pets are classified as banned entities, so circumventing my own negation
+                }
+                if (targetID.contains("Token")) {
+                    if (orphans.containsKey(targetID)) {
+                        orphans.get(targetID).update(0, 0, magnitude);
+                    } else {
+                        orphans.put(targetID, AbilityTypes.makeAbility(targetName, tnid, magnitude));
+                    }
+                    otherEnt.updateAbility(abilityName, abilityID, magnitude, baseMagnitude);
+                    if (flag.contains("Kill")) {
+                        otherEnt.addKill();
+                    }
+                    return;
+                }
+                //In Theory this should never call
+                System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                System.out.println("==============================================");
+                System.out.println("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
+                System.out.println("Damage Target Entity " + targetName + " ID = " + targetID);
+                System.out.println("Amount : " + magnitude);
+                System.out.println("==============================================");
+                //At least I hope?
+                //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
+            }
         }
-        if (!flag.trim().isEmpty() && flag.trim().contains("Kill")) {
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity KILL");
-            if (target != null)
-                killEntity(target, t);
-            if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END KILL");
+    }
+
+    private void checkOrphans() {
+        if (!orphans.isEmpty()) {
+            List<String> purgeQ = new ArrayList<>();
+            for (String s : orphans.keySet()) {
+                String pnid = Entity.getID(s);
+                for (String s1 : petsOfOwners.keySet()) {
+                    String p2nid = Entity.getID(s1);
+                    if (s.equalsIgnoreCase(s1)) {
+                        Ability ab = orphans.get(s);
+                        petsOfOwners.get(s1).updateAbility(ab.name, ab.ID, 0, 0, ab.totalDamage);
+                        globalDamageToPlayers += ab.totalDamage;
+                        purgeQ.add(s);
+                        break; // This is guaranteed to be the pet of Owner
+                    } else if (pnid.equalsIgnoreCase(p2nid)) {
+                        Ability ab = orphans.get(s);
+                        petsOfOwners.get(s1).updateAbility(ab.name, ab.ID, 0, 0, ab.totalDamage);
+                        globalDamageToPlayers += ab.totalDamage;
+                        purgeQ.add(s);
+                        break; // This is Possibly the pet of owner
+                        //TODO Move this to a end of mission check
+                    }
+                }
+            }
+            for (String s : purgeQ) {
+                orphans.remove(s);
+            }
         }
-        if (DEBUG_ALL_STEPS_MODE) System.out.println("Encounter.updateEntity END");
     }
 
-    private void updateAbility(Entity e, String abilityID, double damage, double baseMag) {
-        e.updateAbility(abilityID, damage, baseMag);
-    }
-
-    private void addPetToEntity(Entity owner, Entity pet) {
-        owner.addPetID(pet.ID);
-        pet.ownerEntity = owner.ID;
-    }
-    private void addDamageToEntity(Entity target, Entity source, double damage) {
-        target.updateDamageTaken(damage);
-    }
-
-    private void addHealingToEntity(Entity e, String abilityName, String abilityID, double heal, double baseMag) {
-        e.healEntity(abilityID, heal, baseMag);
-    }
-
-    private void killEntity(Entity e, long t) {
-        e.kill(t);
-        entityDeaths.replace(e.internalName, entityDeaths.get(e.internalName) + 1);
+    private static boolean isBannedEntity(String id) {
+        String enid = Entity.getID(id);
+        return enid.isEmpty() || enid.startsWith("Ability_") || enid.startsWith("Spell_") ||
+                enid.startsWith("Object_") || enid.startsWith("Modifier_") || enid.startsWith("Regionmechanic_") ||
+                bannedEntities.contains(enid) || enid.startsWith("R0_Tol_Ow_Rq_");
     }
 
     public Entity getOrAddEntity(String nm, String id, long t) {
         String enid = Entity.getID(id);
-        if (enid.isEmpty() || enid.equalsIgnoreCase("Ability_Ravnica_Assassin_Passive_Ultimate") ||
-                enid.equalsIgnoreCase("Ability_Ravnica_Assassin_Primary_Ultimate") || enid.startsWith("Spell_") ||
-                enid.startsWith("Object_") || enid.startsWith("Modifier_")) {
+        if (enid.isEmpty() || enid.startsWith("Ability_") || enid.startsWith("Spell_") ||
+                enid.startsWith("Object_") || enid.startsWith("Modifier_") || enid.startsWith("Regionmechanic_") ||
+            bannedEntities.contains(enid) || enid.startsWith("R0_Tol_Ow_Rq_")) {
             return null;
         }
-        if (!entityDeaths.containsKey(enid)) {
-            entityDeaths.put(enid, 0L);
+        if (id.contains("Token")) {
+            System.out.println("TOKEN BEING RETURNED");
         }
-        Entity e = Configs.condensedMode ? getOrAddEntityNoDupe(nm, id, t) : getOrAddEntityDupe(nm, id, t);
-        if (e.name.equalsIgnoreCase(Configs.defaultFilter)) filterEntity = e;
-//        System.out.println("Returning entity : " + nm);
+        Entity e = getOrAddEntityNoDupe(nm, id, t);
+        if (e.name.equalsIgnoreCase(Configs.selfPlayerName)) filterEntity = e;
         return e;
     }
 
@@ -129,34 +224,23 @@ public class Encounter {
         return filterEntity;
     }
 
-    private Entity getOrAddEntityDupe(String nm, String id, long t) {
-        if (!allEntities.containsKey(id))
-            allEntities.put(id, new Entity(nm, id, t));
-        allEntities.get(id).updateSeen(t);
-        return allEntities.get(id);
-    }
-
     private Entity getOrAddEntityNoDupe(String nm, String id, long t) {
         String realID = Entity.getID(id);
-        if (!noDupedEntities.containsKey(realID))
-            noDupedEntities.put(realID, new Entity(nm, id, t));
-        noDupedEntities.get(realID).updateSeen(t);
-        return noDupedEntities.get(realID);
+        if (!entities.containsKey(realID))
+            entities.put(realID, new Entity(nm, id, t));
+        entities.get(realID).updateSeen(t);
+        return entities.get(realID);
     }
 
-    public LinkedHashMap<String, Entity> getEnts() {
-        return Configs.condensedMode ? noDupedEntities : allEntities;
-    }
-
-    public LinkedHashMap<String, Long> getEntityDeaths() {
-        return entityDeaths;
-    }
-
-    public long getDeaths(String id) {
-        return entityDeaths.get(id);
+    public LinkedHashMap<String, Entity> getEntities() {
+        return entities;
     }
 
     public Entity getEntity(String id) {
-        return getEnts().get(Configs.condensedMode ? Entity.getID(id) : id);
+        return getEntities().get(Entity.getID(id));
+    }
+
+    private void sortEntities() {
+        entities.entrySet().stream().sorted(Map.Entry.comparingByValue((a,b) -> -(a.damageDealt - b.damageDealt)));
     }
 }
