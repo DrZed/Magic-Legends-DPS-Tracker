@@ -157,12 +157,12 @@ public class Encounter {
                     return;
                 }
                 //In Theory this should never call
-                System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                /*System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
                 System.out.println("==============================================");
                 System.out.println("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
                 System.out.println("Damage Target Entity " + targetName + " ID = " + targetID);
                 System.out.println("Amount : " + magnitude);
-                System.out.println("==============================================");
+                System.out.println("==============================================");*/
                 //At least I hope?
                 //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
             }

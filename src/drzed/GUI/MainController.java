@@ -27,7 +27,12 @@ import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
+import java.util.Locale;
 
 @SuppressWarnings("all")
 public class MainController {

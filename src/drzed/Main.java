@@ -21,6 +21,7 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 @SuppressWarnings("all")
 public class Main extends Application {

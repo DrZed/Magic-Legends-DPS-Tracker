@@ -3,12 +3,12 @@ package drzed;
 import drzed.Data.Encounter;
 import drzed.Data.subtype.EncounterData;
 import drzed.Data.subtype.EntityNames;
+import drzed.GUI.MainController;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,7 @@ import java.util.*;
 @SuppressWarnings({"WeakerAccess","unused"})
 public class MagicParser {
     private static boolean inEncounter = false;
-    private static RandomAccessFile in;
+    private static BufferedReader in;
     private static File currentFile = null;
     private static boolean retry = false;
     private static Encounter currentEncounter;
@@ -41,7 +41,7 @@ public class MagicParser {
         return true;
     }
 
-    private static boolean tryAndSetNewFile() throws FileNotFoundException {
+    private static boolean tryAndSetNewFile() throws IOException {
         File f1 = getFile();
         if (f1 == null) return false;
         if (currentFile == null) setFile(f1);
@@ -49,9 +49,9 @@ public class MagicParser {
         return currentFile != null && in != null;
     }
 
-    private static void setFile(File f1) throws FileNotFoundException {
+    private static void setFile(File f1) throws IOException {
         currentFile = f1;
-        in = new RandomAccessFile(currentFile, "r");
+        in = new BufferedReader(new InputStreamReader(Files.newInputStream(currentFile.toPath(), StandardOpenOption.READ), StandardCharsets.UTF_8));
     }
 
     private static File getFile() {
