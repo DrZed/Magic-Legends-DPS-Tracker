@@ -65,6 +65,12 @@ public class Main extends Application {
         registerConfigs();
         initialize();
         launch(args);
+//        importEnc("CombatLog_2021-04-11_15_24_32.log");
+//        System.out.println("Duration = " + EncounterData.encounter.duration);
+//        System.out.println("Entities Size = " + EncounterData.encounter.entities.size());
+//        for (String s : EncounterData.encounter.entities.keySet()) {
+//            System.out.println("Entity ID = " + s);
+//        }
     }
 
     @Override
@@ -138,12 +144,12 @@ public class Main extends Application {
     }
 
     public static void importEnc(String name) {
-//        try {
-//            EncounterData.loadEncounter(name);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        MagicParser.setCurrentEncounter(EncounterData.encounter);
+        try {
+            EncounterData.loadEncounter(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MagicParser.setCurrentEncounter(EncounterData.encounter);
     }
 
 

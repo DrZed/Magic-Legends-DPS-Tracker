@@ -23,12 +23,20 @@ public class Encounter {
 
     public Encounter(long StartTime) {
         startTimeLong = StartTime;
+        System.out.println("STARTING ENCOUNTER Time = " + startTimeLong);
     }
 
     public void end(long endTime) {
-        System.out.println("ENCOUNTER HAS ENDED!");
+        System.out.println("ENDING ENCOUNTER Time = " + endTime);
         checkOrphans();
-        duration = (int) Math.round((endTime - startTimeLong / 1000D));
+        duration = (int) Math.round(((endTime - startTimeLong) / 1000D));
+        System.out.println("ENCOUNTER HAS ENDED! Duration = " + formatTime(duration));
+    }
+
+    public static String formatTime(int seconds) {
+        int s = seconds % 60;
+        int m = (seconds - s) / 60;
+        return String.format("%d:%02d", m, s);
     }
 
     private HashMap<String, Ability> orphans = new HashMap<>();
@@ -148,12 +156,12 @@ public class Encounter {
                     return;
                 }
                 //In Theory this should never call
-                System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                /*System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
                 System.out.println("==============================================");
                 System.out.println("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
                 System.out.println("Damage Target Entity " + targetName + " ID = " + targetID);
                 System.out.println("Amount : " + magnitude);
-                System.out.println("==============================================");
+                System.out.println("==============================================");*/
                 //At least I hope?
                 //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
             }

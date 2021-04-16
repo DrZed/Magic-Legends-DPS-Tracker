@@ -131,7 +131,7 @@ public class MagicParser {
         if (currentEncounter == null) {
             currentEncounter = new Encounter(t);
         } else if (lastEncUpT != 0 && t - lastEncUpT > Configs.endEncounterTimer) {
-            endEncounter(t);
+            endEncounter(lastEncUpT);
             currentEncounter = new Encounter(t);
         }
 
@@ -141,10 +141,6 @@ public class MagicParser {
 
         currentEncounter.updateEntity2(ownerName, ownerID, petName, petID, targetName, targetID, t, eventName, eventID, type, flags, mag, baseMag);
         lastEncUpT = t;
-    }
-
-    private static void endEncounter() {
-        endEncounter(System.currentTimeMillis());
     }
 
     private static void endEncounter(long t) {

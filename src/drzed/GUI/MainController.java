@@ -34,6 +34,8 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import static drzed.Data.Encounter.formatTime;
+
 @SuppressWarnings("all")
 public class MainController {
     @FXML public MenuItem fileB;
@@ -307,7 +309,7 @@ public class MainController {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
-                if (!empty) setText(DecimalFormat.getNumberInstance().format(value.intValue()));
+                if (!empty) setText(formatTime(value.intValue()));
             }
         });
         hitsCol.setCellFactory(tc -> new TableCell<Entity, Number>() {
@@ -385,7 +387,7 @@ public class MainController {
     }
 
     private void updateAbilityData() {
-        if (updateFilter()) {
+        if (updateFilter() && curFiltEnt != null) {
             Platform.runLater(() -> pieChart.getData().clear());
             Platform.runLater(() -> statsTbl.setItems(FXCollections.observableArrayList(curFiltEnt.abilityList)));
         }
@@ -407,7 +409,7 @@ public class MainController {
             curFiltEnt = ent;
             return true;
         }
-        if (ent == null && curFiltEnt != null) {
+        if (ent == null && curFiltEnt != null && table.getSelectionModel() != null) {
             table.getSelectionModel().select(curFiltEnt);
         }
         if (curFiltEnt == null && ent == null) {
