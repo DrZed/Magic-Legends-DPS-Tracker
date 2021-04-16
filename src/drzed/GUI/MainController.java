@@ -101,10 +101,19 @@ public class MainController {
     public void update() {
         try {
             if (!reviewMode) {
-                MagicParser.ParseFile();
+                if (MagicParser.ParseFile()) {
+//                    MagicParser.ParseFile();
+                    updateAllData();
+                }
+            } else {
+                updateAbilityData();
+                updatePie();
             }
         } catch (IOException e) { e.printStackTrace(); }
 
+    }
+
+    private void updateAllData() {
         if ((current == null && MagicParser.getCurrentEncounter() != null) || current != MagicParser.getCurrentEncounter()) {
             if (MagicParser.getCurrentEncounter() != null)
                 resetData();
@@ -115,10 +124,8 @@ public class MainController {
             if (ents.size() > 0) {
                 updateTable();
             }
-            if (table.getSelectionModel().getSelectedIndex() != -1) {
-                updateAbilityData();
-                updatePie();
-            }
+            updateAbilityData();
+            updatePie();
         }
     }
 
@@ -129,6 +136,7 @@ public class MainController {
         Platform.runLater(() -> pieChart.getData().clear());
         Platform.runLater(() -> table.getItems().clear());
         Platform.runLater(() -> statsTbl.getItems().clear());
+        curFiltEnt = null;
     }
 
     public void loadEncounter(ActionEvent actionEvent) {
@@ -366,13 +374,6 @@ public class MainController {
         for (Entity value : current.getEntities().values()) {
             if (!ents.contains(value)) {
                 ents.add(value);
-                if (value.name.equalsIgnoreCase(Configs.selfPlayerName)) {
-                    if (current.getFilterEntity()  != null && table.getSelectionModel() != null) {
-                        try {
-                            table.getSelectionModel().select(current.getFilterEntity());
-                        } catch (Exception ignored) {}
-                    }
-                }
             }
         }
     }
@@ -384,15 +385,37 @@ public class MainController {
     }
 
     private void updateAbilityData() {
-        if (table.getSelectionModel().getSelectedItem() == null) return;
-        Entity ent = table.getSelectionModel().getSelectedItem();
-        if (curFiltEnt == null || !ent.name.equalsIgnoreCase(curFiltEnt.name)) {
-            curFiltEnt = ent;
+        if (updateFilter()) {
             Platform.runLater(() -> pieChart.getData().clear());
-            Platform.runLater(() -> statsTbl.setItems(ent.abilityList));
+            Platform.runLater(() -> statsTbl.setItems(FXCollections.observableArrayList(curFiltEnt.abilityList)));
+        }
+        if (curFiltEnt != null && !statsTbl.getItems().isEmpty() && !curFiltEnt.abilityList.isEmpty()) {
+            for (Ability ability : curFiltEnt.abilityList) {
+                if (!statsTbl.getItems().contains(ability)) {
+                    statsTbl.getItems().add(ability);
+                }
+            }
+            statsTbl.getItems().sort((a,b) -> -(a.totalDamage - b.totalDamage));
         }
         statsTbl.sort();
         statsTbl.refresh();
+    }
+
+    private boolean updateFilter() {
+        Entity ent = table.getSelectionModel().getSelectedItem();
+        if (ent != null && !curFiltEnt.name.equalsIgnoreCase(ent.name)) {
+            curFiltEnt = ent;
+            return true;
+        }
+        if (ent == null && curFiltEnt != null) {
+            table.getSelectionModel().select(curFiltEnt);
+        }
+        if (curFiltEnt == null && ent == null) {
+            curFiltEnt = current.getFilterEntity();
+            table.getSelectionModel().select(curFiltEnt);
+            return true;
+        }
+        return false;
     }
 
     private void updatePie() {
@@ -451,5 +474,9 @@ public class MainController {
 
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+    }
+
+    public void onClick(MouseEvent mouseEvent) {
+        updateAllData();
     }
 }

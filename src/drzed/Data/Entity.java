@@ -5,6 +5,8 @@ import drzed.MagicParser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.LinkedList;
+
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Entity {
     public String name = "";
@@ -24,7 +26,7 @@ public class Entity {
     public int kills = 0;
 
     private long firstSeen = 0;
-    public ObservableList<Ability> abilityList;
+    public LinkedList<Ability> abilityList = new LinkedList<>();
 
     public Entity() {}
 
@@ -33,7 +35,6 @@ public class Entity {
         fullID = Identifier;
         firstSeen = first;
         isPlayer = Identifier.startsWith("P");
-        abilityList = FXCollections.observableArrayList();
         internalName = getID(Identifier);
     }
 

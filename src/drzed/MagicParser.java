@@ -21,8 +21,8 @@ public class MagicParser {
     private static File currentFile = null;
     private static boolean retry = false;
     private static Encounter currentEncounter;
-    private static long lastEncUpT = 0;
     public static String myID;
+    private static long lastEncUpT = 0;
 
     public static boolean ParseFile() throws IOException {
         String line;

@@ -9,7 +9,6 @@ import java.util.*;
 public class Encounter {
     public int duration = 0;
     public LinkedHashMap<String, Entity> entities = new LinkedHashMap<>();
-
     public long globalDamageByPlayers, globalDamageToPlayers;
 
     private static final List<String> bannedEntities = Arrays.asList("R0_Tol_Ow_Rq_R3_Q2_Defend_Artifact", "R0_Event_Mana_Rig_Mayhem_Falling_Crystal_Phase_Hazard",
@@ -32,14 +31,6 @@ public class Encounter {
         duration = (int) Math.round((endTime - startTimeLong / 1000D));
     }
 
-    /*
-    Pet Taken
-    Pet Dealt
-    Player Dealt
-    Player Taken
-    Other Ent Taken
-    Other Ent Dealt
-     */
     private HashMap<String, Ability> orphans = new HashMap<>();
     public void updateEntity2(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String type, String flag, double magnitude, double baseMagnitude) {
         if (isBannedEntity(ownerID)) {
@@ -157,12 +148,12 @@ public class Encounter {
                     return;
                 }
                 //In Theory this should never call
-                /*System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
                 System.out.println("==============================================");
                 System.out.println("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
                 System.out.println("Damage Target Entity " + targetName + " ID = " + targetID);
                 System.out.println("Amount : " + magnitude);
-                System.out.println("==============================================");*/
+                System.out.println("==============================================");
                 //At least I hope?
                 //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
             }
@@ -188,7 +179,6 @@ public class Encounter {
                         globalDamageToPlayers += ab.totalDamage;
                         purgeQ.add(s);
                         break; // This is Possibly the pet of owner
-                        //TODO Move this to a end of mission check
                     }
                 }
             }
