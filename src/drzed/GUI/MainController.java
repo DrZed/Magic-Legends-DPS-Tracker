@@ -405,7 +405,7 @@ public class MainController {
 
     private boolean updateFilter() {
         Entity ent = table.getSelectionModel().getSelectedItem();
-        if (ent != null && !curFiltEnt.name.equalsIgnoreCase(ent.name)) {
+        if (ent != null && (curFiltEnt == null || !curFiltEnt.name.equalsIgnoreCase(ent.name))) {
             curFiltEnt = ent;
             return true;
         }
