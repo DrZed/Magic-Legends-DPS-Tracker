@@ -26,19 +26,20 @@ public class MagicParser {
 
     public static boolean ParseFile() throws IOException {
         String line;
+        boolean hasUpdated = false;
         if (tryAndSetNewFile()) {
             for (int i = 0; i < Configs.linesPerPoll; i++) {
                 if ((line = in.readLine()) != null) {
                     inEncounter = true;
                     parseLine(line);
+                    hasUpdated = true;
                 } else {
                     if (System.currentTimeMillis() - lastEncUpT > Configs.endEncounterTimer && inEncounter)
                         endEncounter(lastEncUpT);
-                    return false;
                 }
             }
         }
-        return true;
+        return hasUpdated;
     }
 
     private static boolean tryAndSetNewFile() throws IOException {
