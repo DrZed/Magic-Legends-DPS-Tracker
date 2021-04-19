@@ -152,8 +152,7 @@ public class MainController {
             reviewMode = true;
             Main.importEnc(enc);
             Platform.runLater(() -> resetData());
-            Platform.runLater(() -> table.getItems().clear());
-            Platform.runLater(() -> statsTbl.getItems().clear());
+            Platform.runLater(() -> updateAllData());
         }
     }
 

@@ -24,19 +24,11 @@ public class EncounterData {
             String tlin = lin.trim();
             if (tlin.startsWith("duration")) {
                 long etz = Long.parseLong(tlin.split("=")[1]);
-                if (encounter != null) {
-                    if (etz > 50000) {
-                        encounter.duration = Math.round(etz / 1000f);
-                    } else {
-                        encounter.duration = (int) etz;
-                    }
+                encounter = new Encounter(0);
+                if (etz > 50000) {
+                    encounter.duration = Math.round(etz / 1000f);
                 } else {
-                    encounter = new Encounter(0);
-                    if (etz > 50000) {
-                        encounter.duration = Math.round(etz / 1000f);
-                    } else {
-                        encounter.duration = (int) etz;
-                    }
+                    encounter.duration = (int) etz;
                 }
             } else if (tlin.startsWith("noDupedEntities=[") || tlin.startsWith("entities=[")) {
                 while (!(tlin = r.readLine().trim()).equals("]")) {
@@ -65,7 +57,6 @@ public class EncounterData {
         Entity ent = null;
         long firstSeen = 0;
         while (!(tlin = r.readLine().trim()).equals("]")) {
-            System.out.println("ENT LOOP = " + tlin);
             if (ent == null && (tlin.startsWith("abilities") || tlin.startsWith("abilityList") || tlin.startsWith("healingSources"))) {
                 parseAbilities(r);
             }
@@ -86,6 +77,10 @@ public class EncounterData {
                     ent.healingTaken = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
                 } else if (tlin.startsWith("damageTaken")) {
                     ent.damageTaken = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
+                } else if (tlin.startsWith("shieldTaken")) {
+                    ent.shieldTaken = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
+                } else if (tlin.startsWith("kills")) {
+                    ent.kills = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
                 } else if (tlin.startsWith("damageDealt")) {
                     ent.damageDealt = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
                 } else if (tlin.startsWith("firstSeen")) {
