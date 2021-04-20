@@ -33,7 +33,18 @@ public class AbilityTypes {
             if (abilityID.equalsIgnoreCase("Pn.5b8h1s")) {
                 abilityName = "Helm of the Harvester";
             }
+            if (abilityID.equalsIgnoreCase("Pn.Nznelx")) {
+                abilityName = "Goblin Supply Manifest";
+            }
             skillTypesList.put(abilityID, new AbilityData(abilityName, abilityID, (mag > 0 ? "DMG" : "HEAL")));
+        }
+        if (abilityID.equalsIgnoreCase("Pn.5b8h1s")) {
+            skillTypesList.get(abilityID).skillName = "Helm of the Harvester";
+            skillTypesList.replace(abilityID, skillTypesList.get(abilityID));
+        }
+        if (abilityID.equalsIgnoreCase("Pn.Nznelx")) {
+            skillTypesList.get(abilityID).skillName = "Goblin Supply Manifest";
+            skillTypesList.replace(abilityID, skillTypesList.get(abilityID));
         }
         return skillTypesList.get(abilityID);
     }

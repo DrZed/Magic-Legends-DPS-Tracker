@@ -30,4 +30,5 @@ public class Configs {
     public static int linesPerPoll = 20;
     @Config.comment("This enables displaying labels on the pie slices of the pie chart")
     public static boolean pieChartLabels = false;
+    public static boolean forceSomeAbilitiesToBeNonPet = true;
 }

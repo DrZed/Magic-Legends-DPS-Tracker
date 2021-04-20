@@ -32,7 +32,7 @@ public class EncounterData {
                 }
             } else if (tlin.startsWith("noDupedEntities=[") || tlin.startsWith("entities=[")) {
                 while (!(tlin = r.readLine().trim()).equals("]")) {
-                    System.out.println(tlin);
+//                    System.out.println(tlin);
                     if (tlin.startsWith("globalDamageByPlayers")) {
                         break;
                     }
@@ -83,6 +83,8 @@ public class EncounterData {
                     ent.kills = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
                 } else if (tlin.startsWith("damageDealt")) {
                     ent.damageDealt = (int) Math.round(Double.parseDouble(tlin.split("=")[1]));
+                } else if (tlin.startsWith("lifetime")) {
+                    ent.lifetime = (int) Long.parseLong(tlin.split("=")[1]);
                 } else if (tlin.startsWith("firstSeen")) {
                     firstSeen = Long.parseLong(tlin.split("=")[1]);
                 } else if (tlin.startsWith("lastSeen")) {
@@ -126,10 +128,10 @@ public class EncounterData {
         String nlin;
         LinkedList<Ability> abilities = new LinkedList<>();
         Ability ability;
-        System.out.println("PARSING ABILS");
+//        System.out.println("PARSING ABILS");
 //        System.out.println(r.readLine());
         while (!(nlin = r.readLine().trim()).equals("]")) {
-            System.out.println("ABILS LOOP = " + nlin);
+//            System.out.println("ABILS LOOP = " + nlin);
             if (nlin.endsWith("[")) {
                 ability = new Ability();
                 while (!(nlin = r.readLine().trim()).equals("]")) {

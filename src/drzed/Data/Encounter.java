@@ -5,6 +5,8 @@ import drzed.Data.subtype.AbilityTypes;
 
 import java.util.*;
 
+import static drzed.Main.logToDebugFile;
+
 @SuppressWarnings({"WeakerAccess","unused"})
 public class Encounter {
     public int duration = 0;
@@ -40,9 +42,33 @@ public class Encounter {
     }
 
     private HashMap<String, Ability> orphans = new HashMap<>();
+    private static final List<String> splitAbils = Arrays.asList(
+            "Pn.Oyq2na1", //Necrotic Burst
+            "Pn.Onpxds1", //Mark of Immolation
+            "Pn.Nznelx"  //Deal Power In Damage (Goblin Supply Manifest)
+    ); //TODO Find more abilities that affect pets and should be considered their own abilities
     public void updateEntity2(String ownerName, String ownerID, String petName, String petID, String targetName, String targetID, long t, String abilityName, String abilityID, String type, String flag, double magnitude, double baseMagnitude) {
+        if (Configs.forceSomeAbilitiesToBeNonPet) {
+            if (splitAbils.contains(abilityID)) {
+                petName = "";
+                petID = "";
+            }
+        }
+        if (ownerName.isEmpty() && ownerID.isEmpty() && !petName.isEmpty() && !petID.isEmpty()) {
+            ownerName = petName;
+            ownerID = petID;
+        }
         if (isBannedEntity(ownerID)) {
             if (isBannedEntity(targetID)) {
+                logToDebugFile("REJECTED DATA : ");
+                logToDebugFile("=========================================");
+                logToDebugFile("Owner : " + ownerName + "  " + ownerID);
+                logToDebugFile("Target : " + targetName + "  " + targetID);
+                logToDebugFile("Pet : " + petName + "  " + petID);
+                logToDebugFile("Ability : " + abilityName + "  " + abilityID);
+                logToDebugFile("Type/Flag : " + type + " | " + flag);
+                logToDebugFile("Magnitudes : " + magnitude + "  " + baseMagnitude);
+                logToDebugFile("=========================================");
                 return;
             } else {
                 if (targetID.startsWith("P")) {
@@ -112,12 +138,12 @@ public class Encounter {
                 if (targetID.startsWith("P")) {
                     Entity player = getOrAddEntity(targetName, targetID, t);
                     if (magnitude < 0 && !type.equalsIgnoreCase("Shield")) {
-                        System.out.println("DAMAGE IS NEGATIVE!");
-                        System.out.println("===============================");
-                        System.out.println("Source " + otherEnt.name);
-                        System.out.println("Target " + player.name);
-                        System.out.println("Amount " + magnitude);
-                        System.out.println("===============================");
+                        logToDebugFile("DAMAGE IS NEGATIVE!");
+                        logToDebugFile("=========================================");
+                        logToDebugFile("Source " + otherEnt.name);
+                        logToDebugFile("Target " + player.name);
+                        logToDebugFile("Amount " + magnitude);
+                        logToDebugFile("=========================================");
                     }
                     player.updateDamageTaken(magnitude, type.equalsIgnoreCase("Shield"));
                     globalDamageToPlayers += magnitude;
@@ -156,12 +182,12 @@ public class Encounter {
                     return;
                 }
                 //In Theory this should never call
-                /*System.out.println("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
-                System.out.println("==============================================");
-                System.out.println("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
-                System.out.println("Damage Target Entity " + targetName + " ID = " + targetID);
-                System.out.println("Amount : " + magnitude);
-                System.out.println("==============================================");*/
+                logToDebugFile("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                logToDebugFile("=========================================");
+                logToDebugFile("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
+                logToDebugFile("Damage Target Entity " + targetName + " ID = " + targetID);
+                logToDebugFile("Amount : " + magnitude);
+                logToDebugFile("=========================================");
                 //At least I hope?
                 //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
             }

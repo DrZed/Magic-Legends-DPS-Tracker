@@ -18,19 +18,18 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Locale;
 
 @SuppressWarnings("all")
 public class Main extends Application {
-    private static final String TITLE = "Magic Parser v2.0.3";
+    private static final String TITLE = "Magic Parser v2.0.4";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
     private static HxCConfig config;
     public static boolean DEBUG_MODE = false;
+    public static BufferedWriter logWriter;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -54,7 +53,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length == 1) {
             String[] arg = args[0].split("=");
             if (arg[0].equalsIgnoreCase("-debug")) {
@@ -65,12 +64,6 @@ public class Main extends Application {
         registerConfigs();
         initialize();
         launch(args);
-//        importEnc("CombatLog_2021-04-11_15_24_32.log");
-//        System.out.println("Duration = " + EncounterData.encounter.duration);
-//        System.out.println("Entities Size = " + EncounterData.encounter.entities.size());
-//        for (String s : EncounterData.encounter.entities.keySet()) {
-//            System.out.println("Entity ID = " + s);
-//        }
     }
 
     @Override
@@ -100,7 +93,7 @@ public class Main extends Application {
 
     private static HxCConfig dummy2 = new HxCConfig(AbilityTypes.class, "ML_Skill_Data", new File("./"), "cfg", "MLParse");
     private static HxCConfig dummy3 = new HxCConfig(EntityNames.class, "ML_Entity_Data", new File("./"), "cfg", "MLParse");
-    private static void initialize() {
+    private static void initialize() throws IOException {
         config.initConfiguration(); //TODO avoid attempting this if OS != Windows
         String ddir = getLocation().replaceAll("\\\\", "/");
         String fdir = ddir + "/Magic Legends/Live/logs/GameClient";
@@ -117,6 +110,7 @@ public class Main extends Application {
         if (sk.exists()) {
             dummy3.initConfiguration();
         }
+        logWriter = new BufferedWriter(new FileWriter(new File("./DEBUG_LOG.log")));
     }
 
     static void export(String name) {
@@ -209,5 +203,12 @@ public class Main extends Application {
         } catch (Exception e) {
             return "null";
         }
+    }
+
+    public static void logToDebugFile(String lineToLog) {
+        try {
+            logWriter.append(lineToLog);
+            logWriter.newLine();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }
