@@ -63,7 +63,7 @@ public class Entity {
 
     public Ability getBestAbility() {
         sortAbils();
-        return abilityList.get(abilityList.size() - 1);
+        return abilityList.get(0);
     }
 
     private void sortAbils() {

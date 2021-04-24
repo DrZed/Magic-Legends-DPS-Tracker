@@ -2,6 +2,7 @@ package drzed.GUI;
 
 import drzed.Configs;
 import drzed.Data.Ability;
+import drzed.Data.Encounter;
 import drzed.Data.Entity;
 import drzed.MagicParser;
 import drzed.Main;
@@ -93,7 +94,7 @@ public class MiniController {
         String Spell = ab.name;
         String SpellDPS = format((long) (ab.totalDamage / ab.hits));
         String SpellDMG = format((long) ab.totalDamage);
-        String TimeActive = String.format("%1$,.1f", me.getLifetime()) + "s";
+        String TimeActive = Encounter.formatTime(me.getLifetime());
 
         if (!me.name.equalsIgnoreCase(Configs.selfPlayerName)) {
             System.out.println("Something went horrendously wrong.");
