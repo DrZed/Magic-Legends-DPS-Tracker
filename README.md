@@ -9,7 +9,7 @@
 1. Download
 2. Edit Config (change Keldon Warlord to your character name and change directory to your game's log folder)
 3. use command `/combatlog 1` ingame to enable logging combat to logs folder
-4. launch program after first hit of something to load latest file
+4. Launch the .jar or .exe (EXE only tells the jar to launch with the portable java)
 5. Enjoy the live tracking
 
 * https://www.patreon.com/DrZed
