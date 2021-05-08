@@ -23,7 +23,7 @@ import java.util.Locale;
 
 @SuppressWarnings("all")
 public class Main extends Application {
-    private static final String TITLE = "Magic Parser v2.0.5";
+    private static final String TITLE = "Magic Parser v2.0.6";
     public static Stage stage = null;
     public static Stage miniStage = null;
     public static File Directory;
