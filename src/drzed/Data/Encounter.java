@@ -7,7 +7,7 @@ import java.util.*;
 
 import static drzed.Main.logToDebugFile;
 
-@SuppressWarnings({"WeakerAccess","unused"})
+@SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
 public class Encounter {
     public int duration = 0;
     public LinkedHashMap<String, Entity> entities = new LinkedHashMap<>();
@@ -51,12 +51,12 @@ public class Encounter {
 
     //TODO Exclude pet abilities from separation
     private static final List<String> petAbils = Arrays.asList(
-        "Pn.0bwjon1","Pn.0elwrm","Pn.0o3poi1","Pn.0v83f81","Pn.118p4i1","Pn.12ly9k","Pn.17hg941","Pn.188zhy1","Pn.1i0iy6",
-        "Pn.1mnwuc1","Pn.1q2rhr","Pn.1srkyb","Pn.203ngg1","Pn.2124sh","Pn.26o1v","Pn.2fwq6g1","Pn.2g9smk1","Pn.2j7ikm1","Pn.2wsj5y",
-        "Pn.30fpxv","Pn.34ti4n1","Pn.3i0lgg1","Pn.3od90f","Pn.42rtah1","Pn.49gcn01","Pn.4hdmnv","Pn.4lykum1","Pn.4qvoq9","Pn.5cd7kf",
-        "Pn.5gmpuh1","Pn.5uzr8e1","Pn.5z4pq4","Pn.69xj3v","Pn.6bakzy","Pn.6ku5kr1","Pn.6uwljz","Pn.6wgsxq","Pn.7fwvy1","Pn.7gfx1n",
-        "Pn.7m4v6b1","Pn.7nfqc8","Pn.87lnck1","Pn.87n4ci","Pn.89fp1x","Pn.95hvuc1","Pn.99uf8t1","Pn.9bygqe","Pn.9dc2h61","Pn.9jcvdv",
-        "Pn.9unynx1","Pn.9us6t91","Pn.9v0qkh1","Pn.9zscwd","Pn.A9pnei1","Pn.Abh7kk","Pn.Ade9761","Pn.B0hg1x","Pn.B3v3f1","Pn.B70dob",
+        "Pn.0bwjon1", "Pn.0elwrm", "Pn.0o3poi1", "Pn.0v83f81", "Pn.118p4i1", "Pn.12ly9k", "Pn.17hg941", "Pn.188zhy1", "Pn.1i0iy6", "Pn.Lw0ped1",
+        "Pn.1mnwuc1", "Pn.1q2rhr", "Pn.1srkyb", "Pn.203ngg1", "Pn.2124sh", "Pn.26o1v", "Pn.2fwq6g1", "Pn.2g9smk1", "Pn.2j7ikm1", "Pn.2wsj5y",
+        "Pn.30fpxv", "Pn.34ti4n1", "Pn.3i0lgg1", "Pn.3od90f", "Pn.42rtah1", "Pn.49gcn01", "Pn.4hdmnv", "Pn.4lykum1", "Pn.4qvoq9", "Pn.5cd7kf",
+        "Pn.5gmpuh1", "Pn.5uzr8e1", "Pn.5z4pq4", "Pn.69xj3v", "Pn.6bakzy", "Pn.6ku5kr1", "Pn.6uwljz", "Pn.6wgsxq", "Pn.7fwvy1", "Pn.7gfx1n",
+        "Pn.7m4v6b1", "Pn.7nfqc8", "Pn.87lnck1", "Pn.87n4ci", "Pn.89fp1x", "Pn.95hvuc1", "Pn.99uf8t1", "Pn.9bygqe", "Pn.9dc2h61", "Pn.9jcvdv",
+        "Pn.9unynx1", "Pn.9us6t91", "Pn.9v0qkh1", "Pn.9zscwd", "Pn.A9pnei1", "Pn.Abh7kk", "Pn.Ade9761", "Pn.B0hg1x", "Pn.B3v3f1", "Pn.B70dob",
         "Pn.Cas9af", "Pn.Caw1ol", "Pn.Cbz5af", "Pn.Cdl90r1", "Pn.Cdlg6l1", "Pn.Cq7e2d", "Pn.Crnnc3", "Pn.Cx7q64", "Pn.D6kq", "Pn.D8ak05",
         "Pn.Dfgb4g", "Pn.Di3xod1", "Pn.Diwg4i1", "Pn.Dmoo41", "Pn.Dqzzrm", "Pn.Dsx0nf1", "Pn.Dtrw41", "Pn.Dvm6f81", "Pn.Dybjs7", "Pn.E7zivx",
         "Pn.E8jcmp1", "Pn.Eazjyb", "Pn.Etln0h1", "Pn.Euabqe", "Pn.F3pjuh1", "Pn.F5jws91", "Pn.F7f26o", "Pn.Fci7st1", "Pn.Fhwfq9", "Pn.Fob5mu1",
@@ -76,10 +76,10 @@ public class Encounter {
                 petName = "";
                 petID = "";
             }
-            /*if (splitAbils.contains(abilityID) && !petID.isEmpty()) {
+            if (splitAbils.contains(abilityID) && !petID.isEmpty()) {
                 petName = "";
                 petID = "";
-            }*/
+            }
         }
 
         if (ownerName.isEmpty() && ownerID.isEmpty() && !petName.isEmpty() && !petID.isEmpty()) {
@@ -254,7 +254,7 @@ public class Encounter {
         String enid = Entity.getID(id);
         return enid.isEmpty() || enid.startsWith("Ability_") || enid.startsWith("Spell_") ||
                 enid.startsWith("Object_") || enid.startsWith("Modifier_") || enid.startsWith("Regionmechanic_") ||
-                bannedEntities.contains(enid) || enid.startsWith("R0_Tol_Ow_Rq_");
+                bannedEntities.contains(enid) || enid.startsWith("R0_Tol_Ow_Rq_") || enid.startsWith("Mapmod") ;
     }
 
     public Entity getOrAddEntity(String nm, String id, long t) {
