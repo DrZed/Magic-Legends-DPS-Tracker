@@ -208,6 +208,22 @@ public class MainController {
             e.printStackTrace();
         }
     }
+    public void openStrMode(ActionEvent actionEvent) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("ML_Condensed.fxml"));
+            Stage secondStage = new Stage();
+            secondStage.setTitle("Magic Legends Condensed DPS Tracker");
+            secondStage.setScene(new Scene(root, 390, 320));
+            secondStage.initStyle(StageStyle.TRANSPARENT);
+//            secondStage.setAlwaysOnTop(true);
+            secondStage.setX(0);
+            secondStage.setY(0);
+            Main.streamStage = secondStage;
+            secondStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void setFactories() {
         /* SET CELL VALUE FACTORY TO SPECIFIED DATA TYPES */

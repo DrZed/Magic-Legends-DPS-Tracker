@@ -19,6 +19,7 @@
                   <MenuItem mnemonicParsing="false" onAction="#onFile" text="File.." />
                   <MenuItem mnemonicParsing="false" onAction="#loadEncounter" text="Open Past Encounter" />
                   <MenuItem mnemonicParsing="false" onAction="#closeEncounter" text="Close Encounter" />
+                  <MenuItem mnemonicParsing="false" onAction="#openStrMode" text="Open Streamer GUI" />
             </items>
           </Menu>
         </menus>

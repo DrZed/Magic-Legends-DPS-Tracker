@@ -26,6 +26,7 @@ public class Main extends Application {
     private static final String TITLE = "Magic Parser v2.0.7";
     public static Stage stage = null;
     public static Stage miniStage = null;
+    public static Stage streamStage = null;
     public static File Directory;
     private static HxCConfig config;
     public static boolean DEBUG_MODE = false;

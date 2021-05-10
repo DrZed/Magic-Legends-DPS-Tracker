@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="320.0" maxWidth="390.0" minHeight="320.0" minWidth="390.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="320.0" prefWidth="390.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.CondensedController">
+   <children>
+      <MenuBar layoutY="2.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="25.0" prefWidth="390.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu fx:id="menuD" mnemonicParsing="false" text="Streamer DPS Tracker" />
+        </menus>
+      </MenuBar>
+      <TableView fx:id="statsTbl" layoutX="8.0" layoutY="25.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="299.0" prefWidth="391.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+        <columns>
+          <TableColumn fx:id="abilityCol" maxWidth="170.0" minWidth="80.0" prefWidth="130.0" text="Ability" />
+            <TableColumn id="dmg" fx:id="damageCol2" maxWidth="160.0" minWidth="80.0" prefWidth="86.0" sortType="DESCENDING" text="Damage" />
+            <TableColumn id="dph" fx:id="dpsCol2" maxWidth="100.0" minWidth="60.0" prefWidth="68.0" sortType="DESCENDING" text="DPH" />
+            <TableColumn id="hts" fx:id="hitsCol2" maxWidth="80.0" minWidth="35.0" prefWidth="48.0" sortType="DESCENDING" text="Hits" />
+            <TableColumn id="pct" fx:id="abilityShareCol" maxWidth="68.0" minWidth="35.0" prefWidth="40.0" sortType="DESCENDING" text="\%" />
+        </columns>
+      </TableView>
+      <Button mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+   </children>
+</AnchorPane>
