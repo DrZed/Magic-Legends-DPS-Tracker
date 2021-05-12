@@ -1,10 +1,7 @@
 # Magic-Legends-DPS-Tracker
 ## Requires Java 8 might work with higher versions, no guarantee 
 
-* Line Graph does nothing atm planed DPS over time
 * Saves combat log in pieces via (Encounters) which are calculated seperated fights
-* Planned to load them in the future to review if you want
-* May be resource intensive, optimization comes later
 
 1. Download
 2. Edit Config (change Keldon Warlord to your character name)
