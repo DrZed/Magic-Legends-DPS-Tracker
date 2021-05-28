@@ -78,6 +78,9 @@ public class Entity {
     }
 
     public void updateAbility(String abilityName, String abilityID, double damage, double base, double dtaken) {
+        if (abilityName.equalsIgnoreCase(name)) {
+            return;
+        }
         Ability ab = null;
         abilityID = AbilityTypes.fixAbils(abilityName, abilityID);
 

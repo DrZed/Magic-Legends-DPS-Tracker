@@ -27,12 +27,7 @@ import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.text.DecimalFormat;
-import java.text.MessageFormat;
-import java.util.Locale;
 
 import static drzed.Data.Encounter.formatTime;
 
@@ -147,7 +142,7 @@ public class MainController {
         chooser.getExtensionFilters().add(extFilter);
         chooser.setSelectedExtensionFilter(extFilter);
         chooser.setInitialDirectory(new File("./data/"));
-        String enc = chooser.showOpenDialog(Main.stage).getName();
+        String enc = chooser.showOpenDialog(Main.mainStage).getName();
         if (!enc.isEmpty()) {
             reviewMode = true;
             Main.importEnc(enc);
@@ -165,31 +160,29 @@ public class MainController {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("COMBATLOG files (Combatlog*.log)", "Combatlog*.log");
         chooser.getExtensionFilters().add(extFilter);
         chooser.setSelectedExtensionFilter(extFilter);
-        Main.Directory = chooser.showOpenDialog(Main.stage).getParentFile();
+        Main.Directory = chooser.showOpenDialog(Main.mainStage).getParentFile();
         System.out.println(Main.Directory.getAbsolutePath().replaceAll("\\\\", "/"));
         Configs.combatLogFolder = Main.Directory.getAbsolutePath().replaceAll("\\\\", "/");
         Main.resaveConfig();
     }
 
-    public void quit(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
-    }
-
     public void close(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
+        Main.mainStage.close();
+        if ((Main.miniStage == null || !Main.miniStage.isShowing()) && (Main.streamStage == null || !Main.streamStage.isShowing())) {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 
     double xOffset, yOffset;
     public void onDrag(MouseEvent mouseEvent) {
-        Main.stage.setX(mouseEvent.getScreenX() + xOffset);
-        Main.stage.setY(mouseEvent.getScreenY() + yOffset);
+        Main.mainStage.setX(mouseEvent.getScreenX() + xOffset);
+        Main.mainStage.setY(mouseEvent.getScreenY() + yOffset);
     }
 
     public void onPress(MouseEvent mouseEvent) {
-        xOffset = Main.stage.getX() - mouseEvent.getScreenX();
-        yOffset = Main.stage.getY() - mouseEvent.getScreenY();
+        xOffset = Main.mainStage.getX() - mouseEvent.getScreenX();
+        yOffset = Main.mainStage.getY() - mouseEvent.getScreenY();
     }
 
     public void openMini(ActionEvent actionEvent) {
@@ -214,7 +207,7 @@ public class MainController {
             Stage secondStage = new Stage();
             secondStage.setTitle("Magic Legends Condensed DPS Tracker");
             secondStage.setScene(new Scene(root, 390, 320));
-            secondStage.initStyle(StageStyle.TRANSPARENT);
+            secondStage.initStyle(StageStyle.UNDECORATED);
 //            secondStage.setAlwaysOnTop(true);
             secondStage.setX(0);
             secondStage.setY(0);

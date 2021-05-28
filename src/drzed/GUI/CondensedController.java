@@ -18,7 +18,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 
 @SuppressWarnings("all")
@@ -85,7 +84,7 @@ public class CondensedController {
         chooser.getExtensionFilters().add(extFilter);
         chooser.setSelectedExtensionFilter(extFilter);
         chooser.setInitialDirectory(new File("./data/"));
-        String enc = chooser.showOpenDialog(Main.stage).getName();
+        String enc = chooser.showOpenDialog(Main.mainStage).getName();
         if (!enc.isEmpty()) {
             Main.importEnc(enc);
             Platform.runLater(() -> resetData());
@@ -93,14 +92,12 @@ public class CondensedController {
         }
     }
 
-    public void quit(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
-    }
-
     public void close(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
+        Main.streamStage.close();
+        if ((Main.miniStage == null || !Main.miniStage.isShowing()) && (Main.mainStage == null || !Main.mainStage.isShowing())) {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 
     double xOffset, yOffset;

@@ -8,6 +8,7 @@ import drzed.Data.subtype.EncounterData;
 import drzed.Data.subtype.EntityNames;
 import drzed.Data.subtype.AbilityTypes;
 import drzed.GUI.MainController;
+import drzed.GUI.ResizeHelper;
 import hxckdms.hxcconfig.HxCConfig;
 import hxckdms.hxcconfig.handlers.SpecialHandlers;
 import javafx.application.Application;
@@ -19,12 +20,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.*;
-import java.util.Locale;
 
 @SuppressWarnings("all")
 public class Main extends Application {
-    private static final String TITLE = "Magic Parser v2.0.7";
-    public static Stage stage = null;
+    private static final String TITLE = "Magic Parser v2.0.8";
+    public static Stage mainStage = null;
     public static Stage miniStage = null;
     public static Stage streamStage = null;
     public static File Directory;
@@ -34,23 +34,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        if (Configs.miniMode) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI/ML_ParseMini.fxml"));
-            Parent root = loader.load();
-            primaryStage.setTitle("Magic Legends Mini Parser");
-            primaryStage.setScene(new Scene(root, Configs.miniDisplayWidth, 35));
-            primaryStage.initStyle(StageStyle.TRANSPARENT);
-            primaryStage.setAlwaysOnTop(true);
-            miniStage = primaryStage;
-        } else {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI/ML_ParserGUI.fxml"));
-            Parent root = loader.load();
-            primaryStage.setTitle("Magic Legends Combat Parser");
-            primaryStage.setScene(new Scene(root, 1280, 720));
-            ((MainController) loader.getController()).menuD.setText(TITLE);
-            primaryStage.initStyle(StageStyle.UNDECORATED);
-        }
-        stage = primaryStage;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI/ML_ParserGUI.fxml"));
+        Parent root = loader.load();
+        primaryStage.setTitle("Magic Legends Combat Parser");
+        primaryStage.setScene(new Scene(root, 1280, 720));
+        ((MainController) loader.getController()).menuD.setText(TITLE);
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.setResizable(true);
+        ResizeHelper.addResizeListener(primaryStage);
+        mainStage = primaryStage;
         primaryStage.show();
     }
 

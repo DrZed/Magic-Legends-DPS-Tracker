@@ -23,6 +23,6 @@
             <TableColumn id="pct" fx:id="abilityShareCol" maxWidth="68.0" minWidth="35.0" prefWidth="40.0" sortType="DESCENDING" text="\%" />
         </columns>
       </TableView>
-      <Button mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Button mnemonicParsing="false" onAction="#close" text="Quit" AnchorPane.leftAnchor="350.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>

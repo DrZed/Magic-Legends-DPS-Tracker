@@ -1,58 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.MainController">
+<AnchorPane maxHeight="720.0" maxWidth="1280.0" minHeight="720.0" minWidth="1280.0" prefHeight="720.0" prefWidth="1280.0" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="drzed.GUI.MainController">
    <children>
-      <MenuBar layoutY="2.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <menus>
-          <Menu fx:id="menuD" mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#openMini" text="Open Mini" />
-                  <MenuItem mnemonicParsing="false" onAction="#onFile" text="File.." />
-                  <MenuItem mnemonicParsing="false" onAction="#loadEncounter" text="Open Past Encounter" />
-                  <MenuItem mnemonicParsing="false" onAction="#closeEncounter" text="Close Encounter" />
-                  <MenuItem mnemonicParsing="false" onAction="#openStrMode" text="Open Streamer GUI" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <PieChart fx:id="pieChart" labelLineLength="0.0" labelsVisible="false" layoutX="989.0" layoutY="406.0" legendSide="LEFT" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="411.0" prefWidth="624.0" title="Top 10 Abilities" AnchorPane.bottomAnchor="-4.0" AnchorPane.rightAnchor="-4.0" />
-      <Button mnemonicParsing="false" onAction="#quit" text="Quit" AnchorPane.leftAnchor="1228.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      <TableView fx:id="table" layoutY="27.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="287.0" prefWidth="1280.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="406.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
-        <columns>
-          <TableColumn fx:id="nameCol" prefWidth="140.0" text="Name" />
-            <TableColumn fx:id="damageCol" prefWidth="130.0" sortType="DESCENDING" text="Damage" />
-            <TableColumn fx:id="dpsCol" prefWidth="120.0" sortType="DESCENDING" text="DPS" />
-            <TableColumn fx:id="healCol" prefWidth="130.0" sortType="DESCENDING" text="Heal" />
-            <TableColumn fx:id="hpscol" prefWidth="120.0" sortType="DESCENDING" text="HPS" />
-            <TableColumn fx:id="shieldCol" prefWidth="120.0" sortType="DESCENDING" text="Shield" />
-            <TableColumn fx:id="takenCol" prefWidth="120.0" sortType="DESCENDING" text="Taken" />
-            <TableColumn fx:id="durationCol" prefWidth="70.0" sortType="DESCENDING" text="Duration" />
-            <TableColumn fx:id="hitsCol" prefWidth="70.0" sortType="DESCENDING" text="Hits" />
-            <TableColumn fx:id="killCol" prefWidth="45.0" sortType="DESCENDING" text="Kills" />
-            <TableColumn fx:id="deathCol" prefWidth="45.0" sortType="DESCENDING" text="Deaths" />
-            <TableColumn fx:id="effCol" prefWidth="55.0" sortType="DESCENDING" text="Eff %" />
-        </columns>
-      </TableView>
-      <TableView fx:id="statsTbl" layoutY="316.0" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="405.0" prefWidth="662.0" stylesheets="@dark.css" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="618.0" AnchorPane.topAnchor="316.0">
-        <columns>
-          <TableColumn fx:id="abilityCol" maxWidth="170.0" minWidth="80.0" prefWidth="130.0" text="Ability" />
-            <TableColumn fx:id="damageCol2" maxWidth="160.0" minWidth="80.0" prefWidth="120.0" sortType="DESCENDING" text="Damage" />
-            <TableColumn fx:id="dpsCol2" maxWidth="100.0" minWidth="60.0" prefWidth="70.0" sortType="DESCENDING" text="DPH" />
-            <TableColumn fx:id="hitsCol2" maxWidth="80.0" minWidth="40.0" prefWidth="50.0" sortType="DESCENDING" text="Hits" />
-            <TableColumn fx:id="abilityShareCol" maxWidth="60.0" minWidth="40.0" prefWidth="50.0" sortType="DESCENDING" text="\%" />
-            <TableColumn fx:id="typeCol" maxWidth="90.0" minWidth="50.0" prefWidth="60.0" sortType="DESCENDING" text="Type" />
-            <TableColumn fx:id="abTaken" maxWidth="120.0" minWidth="60.0" sortType="DESCENDING" text="Taken" />
-            <TableColumn fx:id="healCol1" maxWidth="120.0" minWidth="60.0" sortType="DESCENDING" text="Heal" />
-        </columns>
-      </TableView>
+      <GridPane layoutX="1.0" layoutY="-104.0" prefHeight="720.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="1200.0" minWidth="320.0" prefWidth="657.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="623.0" minWidth="10.0" prefWidth="600.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="480.0" minHeight="200.0" prefHeight="240.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="600.0" minHeight="320.0" prefHeight="400.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <PieChart fx:id="pieChart" labelLineLength="0.0" labelsVisible="false" legendSide="LEFT" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="411.0" prefWidth="624.0" title="Top 10 Abilities" GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <padding>
+                  <Insets bottom="4.0" left="2.0" right="4.0" top="2.0" />
+               </padding>
+               <GridPane.margin>
+                  <Insets bottom="4.0" right="4.0" />
+               </GridPane.margin>
+            </PieChart>
+            <MenuBar onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="25.0" prefWidth="1079.0" stylesheets="@dark.css" GridPane.columnSpan="2">
+              <menus>
+                <Menu fx:id="menuD" mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#openMini" text="Open Mini" />
+                        <MenuItem mnemonicParsing="false" onAction="#openStrMode" text="Open Streamer GUI" />
+                        <MenuItem mnemonicParsing="false" onAction="#loadEncounter" text="Open Past Encounter" />
+                        <MenuItem mnemonicParsing="false" onAction="#closeEncounter" text="Close Encounter" />
+                        <MenuItem mnemonicParsing="false" onAction="#close" text="Quit" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <TableView fx:id="table" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="287.0" prefWidth="1280.0" stylesheets="@dark.css" GridPane.columnSpan="2" GridPane.rowIndex="1">
+              <columns>
+                <TableColumn fx:id="nameCol" prefWidth="140.0" text="Name" />
+                  <TableColumn fx:id="damageCol" prefWidth="130.0" sortType="DESCENDING" text="Damage" />
+                  <TableColumn fx:id="dpsCol" prefWidth="120.0" sortType="DESCENDING" text="DPS" />
+                  <TableColumn fx:id="healCol" prefWidth="130.0" sortType="DESCENDING" text="Heal" />
+                  <TableColumn fx:id="hpscol" prefWidth="120.0" sortType="DESCENDING" text="HPS" />
+                  <TableColumn fx:id="shieldCol" prefWidth="120.0" sortType="DESCENDING" text="Shield" />
+                  <TableColumn fx:id="takenCol" prefWidth="120.0" sortType="DESCENDING" text="Taken" />
+                  <TableColumn fx:id="durationCol" prefWidth="70.0" sortType="DESCENDING" text="Duration" />
+                  <TableColumn fx:id="hitsCol" prefWidth="70.0" sortType="DESCENDING" text="Hits" />
+                  <TableColumn fx:id="killCol" prefWidth="45.0" sortType="DESCENDING" text="Kills" />
+                  <TableColumn fx:id="deathCol" prefWidth="45.0" sortType="DESCENDING" text="Deaths" />
+                  <TableColumn fx:id="effCol" prefWidth="55.0" sortType="DESCENDING" text="Eff %" />
+              </columns>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="1.0" />
+               </padding>
+               <GridPane.margin>
+                  <Insets left="4.0" right="4.0" />
+               </GridPane.margin>
+            </TableView>
+            <TableView fx:id="statsTbl" onMouseClicked="#onClick" onMouseDragged="#onDrag" onMousePressed="#onPress" prefHeight="405.0" prefWidth="662.0" stylesheets="@dark.css" GridPane.rowIndex="2">
+              <columns>
+                <TableColumn fx:id="abilityCol" maxWidth="170.0" minWidth="80.0" prefWidth="130.0" text="Ability" />
+                  <TableColumn fx:id="damageCol2" maxWidth="160.0" minWidth="80.0" prefWidth="120.0" sortType="DESCENDING" text="Damage" />
+                  <TableColumn fx:id="dpsCol2" maxWidth="100.0" minWidth="60.0" prefWidth="70.0" sortType="DESCENDING" text="DPH" />
+                  <TableColumn fx:id="hitsCol2" maxWidth="80.0" minWidth="40.0" prefWidth="50.0" sortType="DESCENDING" text="Hits" />
+                  <TableColumn fx:id="abilityShareCol" maxWidth="60.0" minWidth="40.0" prefWidth="50.0" sortType="DESCENDING" text="\%" />
+                  <TableColumn fx:id="typeCol" maxWidth="90.0" minWidth="50.0" prefWidth="60.0" sortType="DESCENDING" text="Type" />
+                  <TableColumn fx:id="abTaken" maxWidth="120.0" minWidth="60.0" sortType="DESCENDING" text="Taken" />
+                  <TableColumn fx:id="healCol1" maxWidth="120.0" minWidth="60.0" sortType="DESCENDING" text="Heal" />
+              </columns>
+               <padding>
+                  <Insets bottom="4.0" left="4.0" right="4.0" top="2.0" />
+               </padding>
+               <GridPane.margin>
+                  <Insets bottom="4.0" left="4.0" />
+               </GridPane.margin>
+            </TableView>
+         </children>
+      </GridPane>
    </children>
 </AnchorPane>

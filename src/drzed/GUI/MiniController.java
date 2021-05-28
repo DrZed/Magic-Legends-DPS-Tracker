@@ -117,7 +117,10 @@ public class MiniController {
     }
 
     public void close(MouseEvent mouseEvent) {
-        Platform.exit();
-        System.exit(0);
+        Main.miniStage.close();
+        if ((Main.mainStage == null || !Main.mainStage.isShowing()) && (Main.streamStage == null || !Main.streamStage.isShowing())) {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 }

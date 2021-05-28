@@ -184,6 +184,7 @@ public class Encounter {
                 }
                 //Pet Ability Taken
                 if (petsOfOwners.containsKey(targetID)) {
+                    magnitude = magnitude < 0 ? magnitude * -1 : magnitude;
                     petsOfOwners.get(targetID).updateAbility(targetName, tnid, 0, 0, magnitude);
                     globalDamageToPlayers += magnitude;
                     if (flag.contains("Kill")) {
@@ -210,12 +211,12 @@ public class Encounter {
                     return;
                 }
                 //In Theory this should never call
-                logToDebugFile("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
+                /*logToDebugFile("ENTITIES THAT SHOULDN'T BE DAMAGING EACH-OTHER");
                 logToDebugFile("=========================================");
                 logToDebugFile("Damage Source Entity " + otherEnt.name + " ID = " + otherEnt.fullID);
                 logToDebugFile("Damage Target Entity " + targetName + " ID = " + targetID);
                 logToDebugFile("Amount : " + magnitude);
-                logToDebugFile("=========================================");
+                logToDebugFile("=========================================");*/
                 //At least I hope?
                 //UPDATE: It has triggered when an enemy damages another enemy, WTF Cryptic
             }
